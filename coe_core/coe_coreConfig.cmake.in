@@ -1,0 +1,14 @@
+# - Config file for the coe_core package
+# It defines the following variables
+#  coe_core_INCLUDE_DIRS - include directories for FooBar
+#  coe_core_LIBRARIES    - libraries to link against
+#  coe_core_EXECUTABLE   - the bar executable
+
+set(coe_core_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${coe_core_DIR}/export_coe_core.cmake")
+
+# These are IMPORTED targets created by coe_coreTargets.cmake
+set(coe_core_LIBRARIES coe_core)
+
