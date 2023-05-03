@@ -1,0 +1,14 @@
+# - Config file for the coe_soem_utilities package
+# It defines the following variables
+#  coe_soem_utilities_INCLUDE_DIRS - include directories for FooBar
+#  coe_soem_utilities_LIBRARIES    - libraries to link against
+#  coe_soem_utilities_EXECUTABLE   - the bar executable
+
+set(coe_soem_utilities_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${coe_soem_utilities_DIR}/export_coe_soem_utilities.cmake")
+
+# These are IMPORTED targets created by coe_soem_utilitiesTargets.cmake
+set(coe_soem_utilities_LIBRARIES coe_soem_utilities)
+
