@@ -35,28 +35,28 @@ public:
   bool isRxPdo() const { return addr_ == ECT_SDO_RXPDOASSIGN; }
   bool isTxPdo() const { return addr_ == ECT_SDO_TXPDOASSIGN; }
 
-  const coe_core::BaseDataObjectEntryPtr &subindex(size_t i) const { return at(i); }
-  coe_core::BaseDataObjectEntryPtr &subindex(size_t i) { return at(i); };
+  const coe_core::BaseDataObjectEntryPtr &subindex(std::size_t i) const { return at(i); }
+  coe_core::BaseDataObjectEntryPtr &subindex(std::size_t i) { return at(i); };
 
   void update(const uint8_t *data, bool prepended_time);
   void flush(uint8_t *data, bool prepended_time) const;
 
   double time() const { return time_; }
-  size_t nBytes(bool packed) const;
+  std::size_t nBytes(bool packed) const;
 
   bool operator==(const Pdo &rhs) const;
   std::string to_string(bool verbose = true) const;
 
-  std::map<size_t, size_t> start_bits_map_;
-  std::map<size_t, size_t> start_bytes_map_;
-  std::map<size_t, size_t> size_bits_map_;
+  std::map<std::size_t, std::size_t> start_bits_map_;
+  std::map<std::size_t, std::size_t> start_bytes_map_;
+  std::map<std::size_t, std::size_t> size_bits_map_;
 
-  void setPackedBytesLenght(const size_t dim_bytes) { dim_bytes_ = dim_bytes; }
+  void setPackedBytesLenght(const std::size_t dim_bytes) { dim_bytes_ = dim_bytes; }
 
 private:
   const uint16_t addr_;
   double time_;
-  size_t dim_bytes_;
+  std::size_t dim_bytes_;
 };
 
 typedef Pdo::Ptr PdoPtr;

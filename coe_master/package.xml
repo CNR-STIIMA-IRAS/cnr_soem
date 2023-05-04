@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<package>
+  <name>coe_master</name>
+  <version>0.0.0</version>
+  <description>The ITIA ethercat package</description>
+
+  <maintainer email="nicola.pedrocchi@itia.cnr.it">Nicola Pedrocchi</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>coe_core</build_depend>
+  <run_depend>coe_core</run_depend>
+  
+  <build_depend>realtime_utilities</build_depend>
+  <run_depend>realtime_utilities</run_depend>
+
+  <build_depend>realtime_utilities</build_depend>
+  <run_depend>realtime_utilities</run_depend>
+
+   
+   
+
+  <build_depend>rosparam_utilities</build_depend>
+  <run_depend>rosparam_utilities</run_depend>
+  
+  <build_depend>diagnostic_updater</build_depend>
+  <run_depend>diagnostic_updater</run_depend>
+  
+  <build_depend>diagnostic_aggregator</build_depend>
+  <run_depend>diagnostic_aggregator</run_depend>
+  
+  <build_depend>coe_soem_utilities</build_depend>
+  <run_depend>coe_soem_utilities</run_depend>
+  
+  <build_depend>pluginlib</build_depend>
+  <run_depend>pluginlib</run_depend>
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <diagnostic_aggregator plugin="${prefix}/analyzer_plugins.xml" />
+  </export>
+</package>

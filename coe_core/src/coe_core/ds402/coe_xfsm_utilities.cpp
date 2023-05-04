@@ -121,7 +121,7 @@ std::string to_string ( const TransitionID& transition, const char* terminator)
 {
     std::string ret;
     std::vector< std::pair< StateID, StateID > > v = get_states_pair(transition);
-    for( size_t i=0;i<v.size();i++)
+    for( std::size_t i=0;i<v.size();i++)
         ret += TRANSITIONID_STRINGS.at(transition) + std::string(": ") 
             + STATEID_STRINGS.at( v[i].first ) + " => " + STATEID_STRINGS.at( v[i].second ) 
             + std::string(terminator);
@@ -184,8 +184,8 @@ int calc_controlword( const StateID& act_state, const CommandID& cmd, StateID* n
     {
         if( reacheable_states.size() > 1 )
         {
-            for(size_t i=0;i<reacheable_states.size();i++)
-                for(size_t j=0;j<reacheable_states.size();j++)
+            for(std::size_t i=0;i<reacheable_states.size();i++)
+                for(std::size_t j=0;j<reacheable_states.size();j++)
                     ok &= reacheable_states.at(i) == reacheable_states.at(j);
         }
     } else if (reacheable_states.size() == 1 )
@@ -201,7 +201,7 @@ int calc_controlword( const StateID& act_state, const CommandID& cmd, StateID* n
         what +="\t  ctrlword bits  (IN ): ";
         what += to_string_bin( *controlword_addr );
         what += "STATES FOUND "+ std::to_string(reacheable_states.size()) + ": ";
-        for(size_t i=0;i<reacheable_states.size(); i++)
+        for(std::size_t i=0;i<reacheable_states.size(); i++)
         {
             what += "\t  FOUND STATE : " + STATEID_STRINGS.at(  reacheable_states.at(i) );
         }
@@ -252,7 +252,7 @@ int calc_controlword ( const StateID&  act_state, const StateID& next_state, uin
         what += "ERROR ******** \n";
         what += "       Nex state (IN ):" + STATEID_STRINGS.at( next_state ) + "\n ";
         what += "TRANSITIONS FOUND "+ std::to_string(possible_transitions.size())+": ";
-        for(size_t i=0;i<possible_transitions.size(); i++)
+        for(std::size_t i=0;i<possible_transitions.size(); i++)
         {
             what +="\t  FOUND TRANSITIONS : " + TRANSITIONID_STRINGS.at(  possible_transitions.at(i) );
         }

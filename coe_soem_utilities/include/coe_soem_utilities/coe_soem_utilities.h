@@ -39,9 +39,9 @@ namespace coe_soem_utilities
   bool set_cob_via_sdo(uint16_t addr, const coe_core::BaseDataObjectEntry *in);
 
   bool get_pdo_map_through_sdo(coe_core::Pdo &pdo, const uint16_t &iSlave, const uint16_t &PDOassign,
-                               const size_t mapoffset, const size_t bitoffset = 0);
+                               std::size_t mapoffset, std::size_t bitoffset = 0);
   bool get_pdo_map_through_sii(coe_core::Pdo &pdo, const uint16_t &iSlave, const uint16_t &SIIcategory,
-                               const size_t mapoffset, const size_t bitoffset = 0);
+                               std::size_t mapoffset, std::size_t bitoffset = 0);
 
   bool get_pdo_map_through_sdo(const uint16_t &iSlave, coe_core::Pdo &rx_pdo, coe_core::Pdo &tx_pdo,
                                char *IOmap = NULL);

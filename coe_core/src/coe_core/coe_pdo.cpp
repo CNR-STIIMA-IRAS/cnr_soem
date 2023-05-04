@@ -127,9 +127,9 @@ std::string Pdo::to_string(bool verbose) const
   return ret;
 }
 
-size_t Pdo::nBytes(bool packed) const
+std::size_t Pdo::nBytes(bool packed) const
 {
-  size_t ret = 0;
+  std::size_t ret = 0;
 
   if (!finalized_)
     ret = 9999999;
@@ -137,7 +137,7 @@ size_t Pdo::nBytes(bool packed) const
     ret = 0;
   else if (!packed)
     ret = std::accumulate(cob_list_.begin(), cob_list_.end(), 0,
-                          [](size_t s, coe_core::BaseDataObjectEntryPtr cob) { return s + cob->sizeBytes(); });
+                          [](std::size_t s, coe_core::BaseDataObjectEntryPtr cob) { return s + cob->sizeBytes(); });
   else
     ret = dim_bytes_;
 

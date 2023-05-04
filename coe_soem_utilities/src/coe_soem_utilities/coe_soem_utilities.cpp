@@ -1,9 +1,9 @@
-#include <thread>
-#include <chrono>
 #include <boost/algorithm/string.hpp>
+#include <chrono>
 #include <inttypes.h>
 #include <iostream>
 #include <regex>
+#include <thread>
 
 #include <ethercat.h>
 #include <ethercatdc.h>
@@ -15,41 +15,41 @@
 namespace coe_soem_utilities
 {
 
-  const char* RESET() { return "\033[0m"; }
-  const char* BLACK() { return "\033[30m"; }
-  const char* RED() { return "\033[31m"; }
-  const char* GREEN() { return "\033[32m"; }
-  const char* YELLOW() { return "\033[33m"; }
-  const char* BLUE() { return "\033[34m"; }
-  const char* MAGENTA() { return "\033[35m"; }
-  const char* CYAN() { return "\033[36m"; }
-  const char* WHITE() { return "\033[37m"; }
-  const char* BOLDBLACK() { return "\033[1m\033[30m"; }
-  const char* BOLDRED() { return "\033[1m\033[31m"; }
-  const char* BOLDGREEN() { return "\033[1m\033[32m"; }
-  const char* BOLDYELLOW() { return "\033[1m\033[33m"; }
-  const char* BOLDBLUE() { return "\033[1m\033[34m"; }
-  const char* BOLDMAGENTA() { return "\033[1m\033[35m"; }
-  const char* BOLDCYAN() { return "\033[1m\033[36m"; }
-  const char* BOLDWHITE() { return "\033[1m\033[37m"; }
+  const char *RESET() { return "\033[0m"; }
+  const char *BLACK() { return "\033[30m"; }
+  const char *RED() { return "\033[31m"; }
+  const char *GREEN() { return "\033[32m"; }
+  const char *YELLOW() { return "\033[33m"; }
+  const char *BLUE() { return "\033[34m"; }
+  const char *MAGENTA() { return "\033[35m"; }
+  const char *CYAN() { return "\033[36m"; }
+  const char *WHITE() { return "\033[37m"; }
+  const char *BOLDBLACK() { return "\033[1m\033[30m"; }
+  const char *BOLDRED() { return "\033[1m\033[31m"; }
+  const char *BOLDGREEN() { return "\033[1m\033[32m"; }
+  const char *BOLDYELLOW() { return "\033[1m\033[33m"; }
+  const char *BOLDBLUE() { return "\033[1m\033[34m"; }
+  const char *BOLDMAGENTA() { return "\033[1m\033[35m"; }
+  const char *BOLDCYAN() { return "\033[1m\033[36m"; }
+  const char *BOLDWHITE() { return "\033[1m\033[37m"; }
 
-  const char* RST() { return RESET(); }
-  const char* BLK() { return BLACK(); }
-  const char* R() { return RED(); }
-  const char* G() { return GREEN(); }
-  const char* Y() { return YELLOW(); }
-  const char* BLE() { return BLUE(); }
-  const char* M() { return MAGENTA(); }
-  const char* C() { return CYAN(); }
-  const char* W() { return WHITE(); }
-  const char* BBLK() { return BOLDBLACK(); }
-  const char* BR() { return BOLDRED(); }
-  const char* BG() { return BOLDGREEN(); }
-  const char* BY() { return BOLDYELLOW(); }
-  const char* BBLE() { return BOLDBLUE(); }
-  const char* BM() { return BOLDMAGENTA(); }
-  const char* BC() { return BOLDCYAN(); }
-  const char* BW() { return BOLDWHITE(); }
+  const char *RST() { return RESET(); }
+  const char *BLK() { return BLACK(); }
+  const char *R() { return RED(); }
+  const char *G() { return GREEN(); }
+  const char *Y() { return YELLOW(); }
+  const char *BLE() { return BLUE(); }
+  const char *M() { return MAGENTA(); }
+  const char *C() { return CYAN(); }
+  const char *W() { return WHITE(); }
+  const char *BBLK() { return BOLDBLACK(); }
+  const char *BR() { return BOLDRED(); }
+  const char *BG() { return BOLDGREEN(); }
+  const char *BY() { return BOLDYELLOW(); }
+  const char *BBLE() { return BOLDBLUE(); }
+  const char *BM() { return BOLDMAGENTA(); }
+  const char *BC() { return BOLDCYAN(); }
+  const char *BW() { return BOLDWHITE(); }
 
   bool ec_statecheck(uint16 slave, uint16 reqstate, double timeout_s)
   {
@@ -71,7 +71,7 @@ namespace coe_soem_utilities
            RESET(), BOLDYELLOW());
     printf("[-----] SOEM got %d slaves, while %zu were expected. ", ec_slavecount, ordered_list_of_devices.size());
     /* Do we got expected number of slaves from config */
-    if ((size_t)ec_slavecount < ordered_list_of_devices.size())
+    if ((std::size_t)ec_slavecount < ordered_list_of_devices.size())
     {
       printf("[-----] SOEM got %d slaves, while %zu were expected. Abort. ", ec_slavecount,
              ordered_list_of_devices.size());
@@ -145,7 +145,7 @@ namespace coe_soem_utilities
     while (EcatError)
     {
       printf("%s", ec_elist2string());
-      if (std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count() > timeout_s)
+      if (std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count() > timeout_s)
       {
         printf("Timeout elasped. Abort ");
         ec_close();
@@ -153,7 +153,6 @@ namespace coe_soem_utilities
       }
 
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    
     }
 
     if (ec_config_init(FALSE) <= 0)
@@ -255,7 +254,7 @@ namespace coe_soem_utilities
     while (EcatError)
     {
       printf("%s", ec_elist2string());
-      if (std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count() > timeout_s)
+      if (std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count() > timeout_s)
       {
         printf("[-----] Timeout elasped. Abort ");
         ec_close();
@@ -278,7 +277,7 @@ namespace coe_soem_utilities
         while (EcatError)
         {
           printf("%s", ec_elist2string());
-          if (std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count() > timeout_s)
+          if (std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count() > timeout_s)
           {
             printf("Timeout elasped. Abort ");
             ec_close();
@@ -605,7 +604,7 @@ namespace coe_soem_utilities
       while (EcatError)
       {
         printf("%s", ec_elist2string());
-        if (std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count() > timeout_s)
+        if (std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count() > timeout_s)
         {
           printf("Timeout elasped. Abort ");
           return -1;
@@ -624,7 +623,7 @@ namespace coe_soem_utilities
       while (EcatError)
       {
         printf("%s", ec_elist2string());
-        if (std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count() > timeout_s)
+        if (std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count() > timeout_s)
         {
           printf("Timeout elasped. Abort ");
           return -1;
@@ -649,7 +648,7 @@ namespace coe_soem_utilities
       while (EcatError)
       {
         printf("%s", ec_elist2string());
-        if (std::chrono::duration<double>(std::chrono::steady_clock::now()-t0).count() > timeout_s)
+        if (std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count() > timeout_s)
         {
           printf("Timeout elasped. Abort ");
           return -1;
@@ -709,7 +708,7 @@ namespace coe_soem_utilities
    *
    */
   bool get_pdo_map_through_sdo(coe_core::Pdo &pdo, const uint16_t &iSlave, const uint16_t &PDOassign,
-                               const size_t mapoffset, const size_t bitoffset)
+                               std::size_t mapoffset, std::size_t bitoffset)
   {
     const bool push_back = pdo.nEntries() == 0;
 
@@ -888,7 +887,7 @@ namespace coe_soem_utilities
               throw std::runtime_error("Type not yet implemented.");
             }
             std::string what;
-            if(!pdo.push_back(obj,what))
+            if (!pdo.push_back(obj, what))
             {
               throw std::runtime_error(std::string("Error!! " + what).c_str());
             }
@@ -932,17 +931,17 @@ namespace coe_soem_utilities
     pdo.setPackedBytesLenght(obj_bitoffset / 8);
     pdo.finalize();
 
-    size_t m = (*std::min_element(pdo.start_bytes_map_.begin(), pdo.start_bytes_map_.end(),
-                                  [](std::pair<size_t, size_t> l, std::pair<size_t, size_t> r)
-                                  { return l.second < r.second; }))
-                   .second;
+    std::size_t m = (*std::min_element(pdo.start_bytes_map_.begin(), pdo.start_bytes_map_.end(),
+                                       [](std::pair<std::size_t, std::size_t> l, std::pair<std::size_t, std::size_t> r)
+                                       { return l.second < r.second; }))
+                        .second;
     for (auto &b : pdo.start_bytes_map_)
       b.second -= m;
     return true;
   }
 
   bool get_pdo_map_through_sii(coe_core::Pdo &pdo, const uint16_t &iSlave, const uint16_t &SIIcategory,
-                               const size_t mapoffset, const size_t bitoffset)
+                               std::size_t mapoffset, std::size_t bitoffset)
   {
 
     if ((SIIcategory != 1) && (SIIcategory != 0))
@@ -1118,7 +1117,7 @@ namespace coe_soem_utilities
               }
 
               std::string what;
-              if(!pdo.push_back(obj,what))
+              if (!pdo.push_back(obj, what))
               {
                 throw std::runtime_error(std::string("Error!! " + what).c_str());
               }
@@ -1165,10 +1164,10 @@ namespace coe_soem_utilities
     }
     pdo.setPackedBytesLenght(totalsize / 8);
     pdo.finalize();
-    size_t m = (*std::min_element(pdo.start_bytes_map_.begin(), pdo.start_bytes_map_.end(),
-                                  [](std::pair<size_t, size_t> l, std::pair<size_t, size_t> r)
-                                  { return l.second < r.second; }))
-                   .second;
+    std::size_t m = (*std::min_element(pdo.start_bytes_map_.begin(), pdo.start_bytes_map_.end(),
+                                       [](std::pair<std::size_t, std::size_t> l, std::pair<std::size_t, std::size_t> r)
+                                       { return l.second < r.second; }))
+                        .second;
     for (auto &b : pdo.start_bytes_map_)
       b.second -= m;
 
@@ -1240,11 +1239,11 @@ namespace coe_soem_utilities
 
       //     // outputs
       //     if (tSM == 3) ok |= coe_core::get_pdo_map_through_sdo(rx_pdo, iSlave, ECT_SDO_PDOASSIGN + iSM,
-      //     (size_t)(ec_slave[iSlave].outputs - (uint8 *)&IOmap[0]), 0);
+      //     (std::size_t)(ec_slave[iSlave].outputs - (uint8 *)&IOmap[0]), 0);
       //
       //     // inputs
       //     if (tSM == 4) ok |= coe_core::get_pdo_map_through_sdo(tx_pdo, iSlave, ECT_SDO_PDOASSIGN + iSM,
-      //     (size_t)(ec_slave[iSlave].inputs - (uint8 *)&IOmap[0], 0) );
+      //     (std::size_t)(ec_slave[iSlave].inputs - (uint8 *)&IOmap[0], 0) );
 
       // outputs
       if (tSM == 3)

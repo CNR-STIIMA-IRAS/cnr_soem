@@ -85,11 +85,12 @@ if(USE_ROS1)
     soem ${catkin_LIBRARIES}
   )
 else()
-  target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES}
-    soem Boost::system ${coe_core_LIBRARIES}
+  target_link_libraries(${PROJECT_NAME} 
+  INTERFACE ${coe_core_LIBRARIES} 
+  PUBLIC soem 
+  INTERFACE Boost::system 
   )
 endif()
-target_compile_definitions(${PROJECT_NAME} PRIVATE "COE_CORE_BUILDING_LIBRARY")
 #################
 ## END - Build ##
 #################
@@ -162,8 +163,7 @@ if(ENABLE_TESTING)
 #     test/test_server.cpp)
 #   if(${CMAKE_VERSION} VERSION_GREATER  "3.16.0")
 #     target_link_libraries(coe_soem_utilities_server_test 
-#       ${PROJECT_NAME} Threads::Threads GTest::gtest_main
-#         Boost::program_options Boost::system Boost::filesystem Boost::iostreams Boost::regex)
+#       ${PROJECT_NAME} Threads::Threads GTest::gtest_main)
 #   else()
 #     target_link_libraries(coe_soem_utilities_server_test ${PROJECT_NAME} GTest::gtest_main)
 #     if(THREADS_HAVE_PTHREAD_ARG)
@@ -173,8 +173,7 @@ if(ENABLE_TESTING)
 #       target_link_libraries(coe_soem_utilities_server_test "${CMAKE_THREAD_LIBS_INIT}")
 #     endif()
 #   endif()
-#   target_compile_definitions(coe_soem_utilities_server_test PRIVATE TEST_DIR="${CMAKE_CURRENT_LIST_DIR}/test")
-  
+#   target_compile_definitions(coe_soem_utilities_server_test PRIVATE TEST_DIR="${CMAKE_CURRENT_LIST_DIR}/test")  
 #   gtest_discover_tests(coe_soem_utilities_server_test)
  endif(ENABLE_TESTING)
 

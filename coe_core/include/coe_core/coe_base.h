@@ -78,8 +78,8 @@ public:
   }
   std::string name() const { return id_; }
   ec_datatype type() const { return type_info_->first; }
-  size_t sizeBits() const { return std::get<1>(type_info_->second); }
-  size_t sizeBytes() const { return std::get<2>(type_info_->second); }
+  std::size_t sizeBits() const { return std::get<1>(type_info_->second); }
+  std::size_t sizeBytes() const { return std::get<2>(type_info_->second); }
 
   // Pure virtual Methods
   virtual const uint8_t *data() const = 0;
@@ -265,13 +265,13 @@ public:
       return cob_list_.back();
     }
 
-    const coe_core::BaseDataObjectEntryPtr &at(size_t i) const;
-    coe_core::BaseDataObjectEntryPtr &at(size_t i);
+    const coe_core::BaseDataObjectEntryPtr &at(std::size_t i) const;
+    coe_core::BaseDataObjectEntryPtr &at(std::size_t i);
 
     const_iterator find(uint16_t index_pdo_entry, int8_t subindex_pdo_entry = -1) const;
     iterator find(uint16_t index_pdo_entry, int8_t subindex_pdo_entry = -1);
 
-    size_t nEntries() const;
+    std::size_t nEntries() const;
 
     virtual bool push_back(coe_core::BaseDataObjectEntryPtr cob, std::string& what);
     void finalize();
@@ -303,7 +303,7 @@ public:
       return false;
     }
 
-    size_t index() const
+    std::size_t index() const
     {
       if ((!finalized_) || (cob_list_.size() == 0))
         throw std::runtime_error("WeakDataObject::index() const | The CobVector "

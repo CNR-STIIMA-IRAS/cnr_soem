@@ -1,0 +1,8 @@
+<library path="lib/libcoe_diagnostic_aggregator" >
+  <class name="diagnostic_aggregator/CoeGenericAnalyzer" type="coe_master::CoeGenericAnalyzer" base_class_type="diagnostic_aggregator::Analyzer">
+    <description>
+      GenericAnalyzer is default diagnostic analyzer.
+    </description>
+  </class>
+</library>
+

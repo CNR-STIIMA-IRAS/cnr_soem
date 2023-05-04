@@ -1,0 +1,14 @@
+# - Config file for the coe_master package
+# It defines the following variables
+#  coe_master_INCLUDE_DIRS - include directories for FooBar
+#  coe_master_LIBRARIES    - libraries to link against
+#  coe_master_EXECUTABLE   - the bar executable
+
+set(coe_master_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${coe_master_DIR}/export_coe_master.cmake")
+
+# These are IMPORTED targets created by coe_masterTargets.cmake
+set(coe_master_LIBRARIES coe_master)
+

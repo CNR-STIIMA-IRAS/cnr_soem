@@ -8,7 +8,7 @@ namespace coe_core
 
 struct Sdo : public WeakDataObject 
 {
-  std::map< size_t, bool > write_access;
+  std::map< std::size_t, bool > write_access;
 };
 
 }  // namespace coe_core 

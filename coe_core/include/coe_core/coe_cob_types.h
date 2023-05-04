@@ -26,7 +26,7 @@ namespace coe_core
   
 struct uint24_t
 {
-    static constexpr std::size_t NBITS = std::numeric_limits<unsigned char>::digits ;
+    static constexpr std::size_t NBITS = std::numeric_limits<unsigned char>::digits;
     static_assert( NBITS == 8, "byte must be an octet" ) ;
 
     uint24_t() = default ;
@@ -49,7 +49,7 @@ struct uint24_t
 struct EcTypes
 {
 
-  typedef std::tuple<std::type_index, size_t, size_t, std::string>  info; 
+  typedef std::tuple<std::type_index, std::size_t, std::size_t, std::string>  info; 
   typedef std::map<ec_datatype, info>                               map;
   typedef std::tuple<std::string, std::string, std::string>         stringequivalent; 
   typedef std::map<std::string,stringequivalent>                    stringmap; 

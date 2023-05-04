@@ -10,7 +10,42 @@
 
 namespace coe_core 
 {
-  
+
+const char* RESET() { return "\033[0m"; }
+const char* BLACK() { return "\033[30m"; }
+const char* RED() { return "\033[31m"; }
+const char* GREEN() { return "\033[32m"; }
+const char* YELLOW() { return "\033[33m"; }
+const char* BLUE() { return "\033[34m"; }
+const char* MAGENTA() { return "\033[35m"; }
+const char* CYAN() { return "\033[36m"; }
+const char* WHITE() { return "\033[37m"; }
+const char* BOLDBLACK() { return "\033[1m\033[30m"; }
+const char* BOLDRED() { return "\033[1m\033[31m"; }
+const char* BOLDGREEN() { return "\033[1m\033[32m"; }
+const char* BOLDYELLOW() { return "\033[1m\033[33m"; }
+const char* BOLDBLUE() { return "\033[1m\033[34m"; }
+const char* BOLDMAGENTA() { return "\033[1m\033[35m"; }
+const char* BOLDCYAN() { return "\033[1m\033[36m"; }
+const char* BOLDWHITE() { return "\033[1m\033[37m"; }
+
+const char* RST() { return RESET(); }
+const char* BLK() { return BLACK(); }
+const char* R() { return RED(); }
+const char* G() { return GREEN(); }
+const char* Y() { return YELLOW(); }
+const char* BLE() { return BLUE(); }
+const char* M() { return MAGENTA(); }
+const char* C() { return CYAN(); }
+const char* W() { return WHITE(); }
+const char* BBLK() { return BOLDBLACK(); }
+const char* BR() { return BOLDRED(); }
+const char* BG() { return BOLDGREEN(); }
+const char* BY() { return BOLDYELLOW(); }
+const char* BBLE() { return BOLDBLUE(); }
+const char* BM() { return BOLDMAGENTA(); }
+const char* BC() { return BOLDCYAN(); }
+const char* BW() { return BOLDWHITE(); }
 
 std::string to_string    ( const ec_datatype&          in, bool fill_space );
 std::string to_string    ( const ec_state&             in );
@@ -20,11 +55,11 @@ std::string dtype2string ( const uint16_t&             dtype, bool fill_spaces )
 template< typename T >
 std::string to_string_hex( const T& i )
 {
-//   size_t sz  = sizeof( T );
-//   size_t u8  = sizeof( uint8_t );
-//   size_t u16 = sizeof( uint16_t );
-//   size_t u32 = sizeof( uint32_t );
-//   size_t u64 = sizeof( uint64_t );
+//   std::size_t sz  = sizeof( T );
+//   std::size_t u8  = sizeof( uint8_t );
+//   std::size_t u16 = sizeof( uint16_t );
+//   std::size_t u32 = sizeof( uint32_t );
+//   std::size_t u64 = sizeof( uint64_t );
 //   
 
 //   if     ( sz == u8 )  stream << "cosa succede? " << i;
@@ -57,11 +92,11 @@ inline std::string to_string_hex( const int8_t& i )
 template< typename C >
 std::string to_string_bin( const C& val_int )
 {
-  size_t sz  = sizeof( C );
-  size_t u8  = sizeof( uint8_t );
-  size_t u16 = sizeof( uint16_t );
-  size_t u32 = sizeof( uint32_t );
-  size_t u64 = sizeof( uint64_t );
+  std::size_t sz  = sizeof( C );
+  std::size_t u8  = sizeof( uint8_t );
+  std::size_t u16 = sizeof( uint16_t );
+  std::size_t u32 = sizeof( uint32_t );
+  std::size_t u64 = sizeof( uint64_t );
   
   std::string ret;
   if( sz == u8 )
