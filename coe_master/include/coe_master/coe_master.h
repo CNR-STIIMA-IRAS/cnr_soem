@@ -2,16 +2,14 @@
 #define COE_MASTER__COE_MASTER_H
 
 #include <algorithm>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <chrono>
 #include <cinttypes>
 #include <csignal>
 #include <iostream>
 
-#include <boost/thread.hpp>
-#include <soem/ethercat.h>
-#include <soem/ethercatdc.h>
-#include <soem/ethercattype.h>
+#include <ethercat.h>
+#include <ethercatdc.h>
+#include <ethercattype.h>
 
 
 #include <coe_core/coe_sdo.h>
@@ -24,7 +22,7 @@
 
 #include <coe_master/modules/coe_module_descriptor.h>
 #include <coe_master/modules/coe_network_descriptor.h>
-#include <coe_master/modules/coe_srv_utilities.h>
+#include <coe_master/ipc/coe_srv_utilities.h>
 
 #include <coe_master/coe_master_fsm.h>
 #include <coe_master/coe_master_utilities.h>

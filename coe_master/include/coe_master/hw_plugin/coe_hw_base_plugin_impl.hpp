@@ -53,9 +53,9 @@ inline CoeHwPlugin::CoeHwPlugin ( )
   bool debug = false;
   if (!nh_.getParam("coe_hw_plugin_debug", debug) )
   {
-    ROS_WARN("The param '%s/%s' is not defined", nh_.getNamespace().c_str(), std::string( "coe_hw_plugin_debug" ).c_str() );
+    printf("The param '%s/%s' is not defined", nh_.getNamespace().c_str(), std::string( "coe_hw_plugin_debug" ).c_str() );
   }
-  ROS_WARN("[ %s ] CoeHwPlugin::CoeHwPlugin() Verbosity level: '%s'. ", nh_.getNamespace().c_str(), (debug ? "DEBUG" : "INFO" ));
+  printf("[ %s ] CoeHwPlugin::CoeHwPlugin() Verbosity level: '%s'. ", nh_.getNamespace().c_str(), (debug ? "DEBUG" : "INFO" ));
 
   if (debug)
   {
@@ -69,12 +69,12 @@ inline CoeHwPlugin::CoeHwPlugin ( )
 
 inline CoeHwPlugin::~CoeHwPlugin ( ) 
 {
-  ROS_DEBUG("~CoeHwPlugin Plugin Destructor!");
+  printf("~CoeHwPlugin Plugin Destructor!");
   if(initialized_)
   {
     reset();
   }
-  ROS_DEBUG("~CoeHwPlugin Plugin Destructed");
+  printf("~CoeHwPlugin Plugin Destructed");
 }
   
   
@@ -82,17 +82,17 @@ inline bool CoeHwPlugin::initialize(ros::NodeHandle& nh, const std::string& devi
 {
 
   nh_ = nh;
-  ROS_INFO("CoeHwPlugin::initialize() Start!");
+  printf("CoeHwPlugin::initialize() Start!");
   
   cnr::param::node_t config;
   if( !nh.getParam(device_coe_parameter, config ) )
   {
-    ROS_ERROR("Error in extracting data from '%s/%s'", nh.getNamespace().c_str(), device_coe_parameter.c_str() );
+    printf("Error in extracting data from '%s/%s'", nh.getNamespace().c_str(), device_coe_parameter.c_str() );
     return false;
   }
   if( !nh.getParam(device_coe_parameter+"/module_list", config ) )
   {
-    ROS_ERROR("Error in extracting data from '%s/%s'", nh.getNamespace().c_str(), device_coe_parameter.c_str() );
+    printf("Error in extracting data from '%s/%s'", nh.getNamespace().c_str(), device_coe_parameter.c_str() );
     return false;
   }
   
@@ -113,7 +113,7 @@ inline bool CoeHwPlugin::initialize(ros::NodeHandle& nh, const std::string& devi
   }
   if(!ok) 
   {
-    ROS_ERROR("Error in extracting data from '%s/%s'. The address '%d'", nh.getNamespace().c_str(), device_coe_parameter.c_str() , address);
+    printf("Error in extracting data from '%s/%s'. The address '%d'", nh.getNamespace().c_str(), device_coe_parameter.c_str() , address);
     return false;
   }
     
@@ -126,32 +126,32 @@ inline bool CoeHwPlugin::initialize(ros::NodeHandle& nh, const std::string& devi
   
   if( !nh.getParam(device_coe_parameter+"/operational_time", operational_time_) )
   {
-    ROS_ERROR("Error in extracting data from '%s/%s/operational_time'", nh.getNamespace().c_str(), device_coe_parameter.c_str() );
+    printf("Error in extracting data from '%s/%s/operational_time'", nh.getNamespace().c_str(), device_coe_parameter.c_str() );
     return false;
   }
   
-  ROS_DEBUG_STREAM(msg << BOLDYELLOW() << "Init Node - Configuration from ROS param server" << RESET() );
+  std::cout << msg << BOLDYELLOW() << "Init Node - Configuration from ROS param server" << RESET() );
   if( !module_->initNodeConfigurationFromParams ( ) )
   {
-    ROS_ERROR_STREAM( msg << " [ " << RED() << " ERROR " << RESET() << " ] Basic Configurations from Param Server failed. ");
+    std::cout <<  msg << " [ " << RED() << " ERROR " << RESET() << " ] Basic Configurations from Param Server failed. ");
     return false;
   }
   if( !module_->initNodeCoeConfigurationFromParams ( false ) )
   {
-    ROS_ERROR_STREAM( msg << " [ " << RED() << " ERROR " << RESET() << " ] Coe Configurations from Param Server failed. ");
+    std::cout <<  msg << " [ " << RED() << " ERROR " << RESET() << " ] Coe Configurations from Param Server failed. ");
     return false;
   }
   
-  ROS_DEBUG_STREAM(msg << BOLDYELLOW() << "Init Handles" << RESET() );
+  std::cout << msg << BOLDYELLOW() << "Init Handles" << RESET() );
   if( !module_->initHandles( ) )
   {
-    ROS_ERROR_STREAM( msg << " [ " << RED() << " ERROR " << RESET() << " ] Handles Configurations from Params failed. ");
+    std::cout <<  msg << " [ " << RED() << " ERROR " << RESET() << " ] Handles Configurations from Params failed. ");
     return false;
   }
   
   if( !module_->connectHandles( ) )
   {
-    ROS_ERROR_STREAM( msg << " [ " << RED() << " ERROR " << RESET() << " ] Handle Connection failed. ");
+    std::cout <<  msg << " [ " << RED() << " ERROR " << RESET() << " ] Handle Connection failed. ");
     return false;
   }
   // TODO check correctness throu network_
@@ -159,22 +159,22 @@ inline bool CoeHwPlugin::initialize(ros::NodeHandle& nh, const std::string& devi
   set_sdo_  = nh.serviceClient<coe_ros_msgs::SetSdo>(device_coe_parameter+"/"+SET_SDO_SERVER_NAMESPACE);
   if (!set_sdo_.waitForExistence(ros::Duration(5)))
   {
-    ROS_ERROR("No server found for service %s",set_sdo_.getService().c_str());
+    printf("No server found for service %s",set_sdo_.getService().c_str());
     return false;
   }
   get_sdo_  = nh.serviceClient<coe_ros_msgs::GetSdo>(device_coe_parameter+"/"+GET_SDO_SERVER_NAMESPACE);
   if (!get_sdo_.waitForExistence(ros::Duration(5)))
   {
-    ROS_ERROR("No server found for service %s",get_sdo_.getService().c_str());
+    printf("No server found for service %s",get_sdo_.getService().c_str());
     return false;
   }
-  ROS_DEBUG_STREAM(msg << BOLDYELLOW() << "Access to Shared Memory '"<<  BOLDCYAN() << module_->getIdentifier() << BOLDYELLOW()<< "' "<< RESET() << " Operational Time: " << operational_time_ << " WatchDog Deciamtion: " << module_->getWatchdogDecimation() );
+  std::cout << msg << BOLDYELLOW() << "Access to Shared Memory '"<<  BOLDCYAN() << module_->getIdentifier() << BOLDYELLOW()<< "' "<< RESET() << " Operational Time: " << operational_time_ << " WatchDog Deciamtion: " << module_->getWatchdogDecimation() );
   pdo_shared_memory_.reset( new coe_master::ModuleIPC( module_->getIdentifier(), operational_time_, module_->getWatchdogDecimation() ) );
   
   std::size_t rxpdo_shdim = pdo_shared_memory_->rx_pdo_.getSize(false);
   std::size_t txpdo_shdim = pdo_shared_memory_->tx_pdo_.getSize(false);
   
-  ROS_DEBUG_STREAM(msg << "Allocate the shared memory object for '" << module_->getIdentifier() << "' [I:" << txpdo_shdim <<"B O:"<< rxpdo_shdim  <<"B]");
+  std::cout << msg << "Allocate the shared memory object for '" << module_->getIdentifier() << "' [I:" << txpdo_shdim <<"B O:"<< rxpdo_shdim  <<"B]");
   
   prxpdo_          = rxpdo_shdim > 0  ? ( new uint8_t[ rxpdo_shdim ] ) : NULL;
   prxpdo_previous_ = rxpdo_shdim > 0  ? ( new uint8_t[ rxpdo_shdim ] ) : NULL;
@@ -190,20 +190,20 @@ inline bool CoeHwPlugin::initialize(ros::NodeHandle& nh, const std::string& devi
     
   if( ( !pdo_shared_memory_->rx_pdo_.bond() ) && (rxpdo_shdim > 0) )
   {
-    ROS_ERROR ("Bonding failed ...");
+    printf ("Bonding failed ...");
     return false;
   }
   
   if( ( !pdo_shared_memory_->tx_pdo_.bond() ) && (txpdo_shdim > 0) )
   {
-    ROS_ERROR ("Bonding failed ...");
+    printf ("Bonding failed ...");
     return false;
   }
   
   double diagnostic_period_parameter;
   if( !ros::NodeHandle("~").getParam( "diagnostic_period_parameter", diagnostic_period_parameter ) )
   {
-    ROS_WARN("~diagnostic_period_parameter not in the ROSPARAM SERVER. Set to 100Hz");
+    printf("~diagnostic_period_parameter not in the ROSPARAM SERVER. Set to 100Hz");
     ros::NodeHandle("~").setParam( "diagnostic_period_parameter", 0.01 );
   }
 
@@ -245,7 +245,7 @@ inline CoeHwPlugin::Error CoeHwPlugin::read()
     assert( pdo_shared_memory_->tx_pdo_.getSize( false ) > 0 );
     if( pdo_shared_memory_->tx_pdo_.getSize(false) !=  module_->sizeInputs() )
     {
-      ROS_ERROR("Dimension Mismatch. Module Name '%s', Shared Memory Dimension: %zuB, Module Inputs size %zuB", module_->getIdentifier().c_str(), pdo_shared_memory_->tx_pdo_.getSize(false), module_->sizeInputs() );
+      printf("Dimension Mismatch. Module Name '%s', Shared Memory Dimension: %zuB, Module Inputs size %zuB", module_->getIdentifier().c_str(), pdo_shared_memory_->tx_pdo_.getSize(false), module_->sizeInputs() );
       assert(0);
     }
     assert( ptxpdo_previous_ != NULL );
@@ -258,7 +258,7 @@ inline CoeHwPlugin::Error CoeHwPlugin::read()
     errorcode = pdo_shared_memory_->tx_pdo_.flush( &ptxpdo_[0], &tm, &latency, module_->sizeInputs() );
     if( errorcode )
     {
-      ROS_ERROR("Broken linkage to the Shared Memory. Error: %s Abort.", pdo_shared_memory_->tx_pdo_.to_string( errorcode ).c_str() );
+      printf("Broken linkage to the Shared Memory. Error: %s Abort.", pdo_shared_memory_->tx_pdo_.to_string( errorcode ).c_str() );
       return CoeHwPlugin::COM_ERROR;
     }
     
@@ -267,7 +267,7 @@ inline CoeHwPlugin::Error CoeHwPlugin::read()
   }
   catch( std::exception& e )
   {
-    ROS_ERROR("READ EXCEPTION: %s",e.what());
+    printf("READ EXCEPTION: %s",e.what());
     return CoeHwPlugin::EXCEPTION_ERROR;
   }
   
@@ -299,13 +299,13 @@ inline CoeHwPlugin::Error CoeHwPlugin::write()
     errorcode=pdo_shared_memory_->rx_pdo_.update( &prxpdo_[0], act_time, module_->sizeOutputs()  );
     if(errorcode)
     {
-      ROS_ERROR("Broken linkage to the Shared Memory. Error: %s Abort.", pdo_shared_memory_->rx_pdo_.to_string( errorcode ).c_str() );
+      printf("Broken linkage to the Shared Memory. Error: %s Abort.", pdo_shared_memory_->rx_pdo_.to_string( errorcode ).c_str() );
       return CoeHwPlugin::COM_ERROR;
     }
   }
   catch( std::exception& e )
   {
-    ROS_ERROR("WRITE EXCEPTION: %s",e.what());
+    printf("WRITE EXCEPTION: %s",e.what());
     return CoeHwPlugin::EXCEPTION_ERROR;
   }
   
@@ -337,13 +337,13 @@ inline CoeHwPlugin::Error CoeHwPlugin::safeWrite()
     errorcode=pdo_shared_memory_->rx_pdo_.update( &prxpdo_[0], act_time, module_->sizeOutputs()  );
     if(errorcode)
     {
-      ROS_ERROR("Broken linkage to the Shared Memory. Error: %s Abort.", pdo_shared_memory_->rx_pdo_.to_string( errorcode ).c_str() );
+      printf("Broken linkage to the Shared Memory. Error: %s Abort.", pdo_shared_memory_->rx_pdo_.to_string( errorcode ).c_str() );
       return CoeHwPlugin::COM_ERROR;
     }
   }
   catch( std::exception& e )
   {
-    ROS_ERROR("WRITE EXCEPTION: %s",e.what());
+    printf("WRITE EXCEPTION: %s",e.what());
     return CoeHwPlugin::EXCEPTION_ERROR;
   }
 
@@ -353,7 +353,7 @@ inline CoeHwPlugin::Error CoeHwPlugin::safeWrite()
   
 inline bool CoeHwPlugin::readSdo ( coe_core::BaseDataObjectEntry* in)
 {
-  // ROS_INFO("SDO READ REQUEST: %s", in->to_string().c_str() );
+  // printf("SDO READ REQUEST: %s", in->to_string().c_str() );
   coe_ros_msgs::GetSdo::Request req;
   coe_ros_msgs::GetSdo::Response res;
   
@@ -377,28 +377,28 @@ inline bool CoeHwPlugin::readSdo ( coe_core::BaseDataObjectEntry* in)
   
   if( !set_sdo_.exists() )
   {
-    ROS_FATAL_THROTTLE(2,"Error. The service '%s' is not available", set_sdo_.getService().c_str() );
+    printf_THROTTLE(2,"Error. The service '%s' is not available", set_sdo_.getService().c_str() );
     return false;
   }
   
   if( !get_sdo_.call(req,res) )
   {
-    ROS_FATAL_THROTTLE(2,"Error. Server does not answer to the call. ");
+    printf_THROTTLE(2,"Error. Server does not answer to the call. ");
     return false;
   }
   if( !res.success )
   {
-    ROS_FATAL("Error. Getting the sdo '%x:%u' failed. ", in->index(), in->subindex() );
+    printf("Error. Getting the sdo '%x:%u' failed. ", in->index(), in->subindex() );
     return false;
   }
-  // ROS_INFO("Read SDO Success, %lu" , *(uint64_t*)&(res.value[0]) );
+  // printf("Read SDO Success, %lu" , *(uint64_t*)&(res.value[0]) );
   fromBoostArray( res.value, in);
   return true;
 }
     
 inline bool CoeHwPlugin::writeSdo ( const coe_core::BaseDataObjectEntry* in) 
 {
-  // ROS_DEBUG_STREAM( "[" << BOLDMAGENTA() << " PROCESS "<< RESET() << "] Set COB-ID: " << in->to_string() );
+  // std::cout <<  "[" << BOLDMAGENTA() << " PROCESS "<< RESET() << "] Set COB-ID: " << in->to_string() );
   coe_ros_msgs::SetSdo::Request req;
   coe_ros_msgs::SetSdo::Response res;
   
@@ -427,21 +427,21 @@ inline bool CoeHwPlugin::writeSdo ( const coe_core::BaseDataObjectEntry* in)
   
   if( !set_sdo_.exists() )
   {
-    ROS_FATAL("Error. The service '%s' is not available", set_sdo_.getService().c_str() );
+    printf("Error. The service '%s' is not available", set_sdo_.getService().c_str() );
     return false;
   }
   
   if( !set_sdo_.call(req,res) )
   {
-    ROS_FATAL("Error. Server does not asnwer to the call. ");
+    printf("Error. Server does not asnwer to the call. ");
     return false;
   }
   if( !res.success )
   {
-    ROS_ERROR_STREAM( "[" << BOLDRED() << "  FAILED "<< RESET() << "] Set COB-ID: " << in->to_string() );
+    std::cout <<  "[" << BOLDRED() << "  FAILED "<< RESET() << "] Set COB-ID: " << in->to_string() );
     return false;
   }
-  // ROS_DEBUG_STREAM( "[" << BOLDGREEN() << "   OK    "<< RESET() << "] Set COB-ID: " << in->to_string() );
+  // std::cout <<  "[" << BOLDGREEN() << "   OK    "<< RESET() << "] Set COB-ID: " << in->to_string() );
   return true;
 }
 
@@ -450,9 +450,9 @@ inline bool CoeHwPlugin::writeSdo ( const coe_core::BaseDataObjectEntry* in)
 inline void  CoeHwPlugin::errorThread( )
 {
   ros::Rate rt(100);
-  ROS_INFO("[ %s%s%s ] The Loggger Thread is now running", BOLDCYAN(), module_->getIdentifier().c_str(), RESET() );
+  printf("[ %s%s%s ] The Loggger Thread is now running", BOLDCYAN(), module_->getIdentifier().c_str(), RESET() );
   ros::Publisher state_pub = nh_.advertise<std_msgs::Int16>(module_->getIdentifier()+"_operation_mode_state",1);
-  ROS_INFO("[ %s%s%s ] The Operation MOde State publisher is now running", BOLDCYAN(), module_->getIdentifier().c_str(), RESET() );
+  printf("[ %s%s%s ] The Operation MOde State publisher is now running", BOLDCYAN(), module_->getIdentifier().c_str(), RESET() );
   std_msgs::Int16 state_msg;
   state_msg.data = operation_mode_state_;
   state_pub.publish(state_msg);
@@ -481,7 +481,7 @@ inline void  CoeHwPlugin::errorThread( )
     if( ( std::fabs(d1) > 5 * pdo_shared_memory_->rx_pdo_.getWatchdog() )
     ||  ( std::fabs(d2) > 5 * pdo_shared_memory_->tx_pdo_.getWatchdog() ) )
     {
-      ROS_WARN("PDO commnucation borken %f/%f, %f/%f"
+      printf("PDO commnucation borken %f/%f, %f/%f"
                , std::fabs(d1) , 5 * pdo_shared_memory_->rx_pdo_.getWatchdog()
                , std::fabs(d2) , 5 * pdo_shared_memory_->tx_pdo_.getWatchdog() );
     }
@@ -502,7 +502,7 @@ inline bool CoeHwPlugin::reset( )
     
   stop_thread_ = true;
   
-  ROS_DEBUG("Join the error thread");
+  printf("Join the error thread");
   if( error_thread_ )
   {
     stop_thread_ = true;
@@ -510,46 +510,46 @@ inline bool CoeHwPlugin::reset( )
     error_thread_.reset();
   }
 
-  ROS_DEBUG("Rx Break Bond!");
+  printf("Rx Break Bond!");
   if( pdo_shared_memory_->rx_pdo_.isBonded() )
     pdo_shared_memory_->rx_pdo_.breakBond();
-  ROS_DEBUG("Tx Break Bond!");
+  printf("Tx Break Bond!");
   if( pdo_shared_memory_->tx_pdo_.isBonded() )
     pdo_shared_memory_->tx_pdo_.breakBond();
   
-  ROS_DEBUG("Shutdown set_sdo service");
+  printf("Shutdown set_sdo service");
   set_sdo_.shutdown();
   
-  ROS_DEBUG("Shutdown get_sdo service");
+  printf("Shutdown get_sdo service");
   get_sdo_.shutdown();
   
-  ROS_DEBUG("Clean mem rxpdo");
+  printf("Clean mem rxpdo");
   if( prxpdo_ != nullptr )          
   {
     delete [] prxpdo_;
     prxpdo_ = nullptr;
   }
-  ROS_DEBUG("Clean mem txpdo");
+  printf("Clean mem txpdo");
   if( ptxpdo_ != nullptr )
   {
     delete [] ptxpdo_;
     ptxpdo_ = nullptr;
   }
   
-  ROS_DEBUG("Clean mem rxpdo swap");
+  printf("Clean mem rxpdo swap");
   if( prxpdo_previous_ != nullptr )
   {
     delete [] prxpdo_previous_;
     prxpdo_previous_ = nullptr;
   }
   
-  ROS_DEBUG("Clean mem txpdo swap");
+  printf("Clean mem txpdo swap");
   if( ptxpdo_previous_ != nullptr )
   {
     delete [] ptxpdo_previous_;
     ptxpdo_previous_ = nullptr;
   }
-  ROS_DEBUG("OK");  
+  printf("OK");  
   
   initialized_ = false;
 

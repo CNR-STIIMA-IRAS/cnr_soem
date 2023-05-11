@@ -25,7 +25,7 @@ namespace PdoData
     BIT_OFFSET
   };
 
-  inline void getFromNode(const cnr::param::node_t &node, coe_core::Pdo &pdo, const std::string &log)
+  inline void get(const cnr::param::node_t &node, coe_core::Pdo &pdo, const std::string &log)
   {
 
     cnr::param::node_t config(node);

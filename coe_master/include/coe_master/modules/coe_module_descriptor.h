@@ -14,11 +14,6 @@
 namespace coe_master
 {
 
-inline std::string uniqueId(const std::string &model, const int address, const std::string &separator = "__")
-{
-  return model + separator + std::to_string(address);
-}
-
 class ModuleDescriptor
 {
 public:

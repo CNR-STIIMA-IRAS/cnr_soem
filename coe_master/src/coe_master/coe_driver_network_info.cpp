@@ -47,7 +47,7 @@ public:
     
     if(!init(nh, coe_device_parameter_namespace))
     {
-      ROS_ERROR("Failed in ctor. Exit.");
+      printf("Failed in ctor. Exit.");
       throw std::runtime_error("Failed in ctor. Exit.");
     }
   }
@@ -58,16 +58,16 @@ public:
     
     if( !nh_->getParam(coe_device_parameter_namespace, root_config_ ) )
     {
-      ROS_ERROR_STREAM( "The root config is not in the rosparam server. " );
+      std::cout <<  "The root config is not in the rosparam server. " );
       return false;
     }
     
     if( !nh_->getParam(coe_device_parameter_namespace+"/adapter", adapter_ ) )
     {
-      ROS_ERROR_STREAM( "The param "<< coe_device_parameter_namespace<<"/adapter"<<" is not in the rosparam server. " );
+      std::cout <<  "The param "<< coe_device_parameter_namespace<<"/adapter"<<" is not in the rosparam server. " );
       return false;
     }
-    ROS_ERROR_STREAM( "The param "<< coe_device_parameter_namespace<<"/adapter"<<" is: " << adapter_ );
+    std::cout <<  "The param "<< coe_device_parameter_namespace<<"/adapter"<<" is: " << adapter_ );
     
     sdo_ = new SdoManager( network_, true );
     
@@ -79,7 +79,7 @@ public:
 
     if( !realtime_utilities::rt_init_thread( MY_STACK_SIZE, int prio, int sched, period_info*  pinfo, long  period_ns  ) )
     {
-      ROS_FATAL("Failed in setting threwad rt properties. Exit. ");
+      printf("Failed in setting threwad rt properties. Exit. ");
       return;
     }
     
@@ -87,12 +87,12 @@ public:
     spinner.start();
 
     //------------------------------------------------------------------------------------------------------------------------------------------------------
-    ROS_INFO("Starting slaveinfo");
+    printf("Starting slaveinfo");
     if ( !coe_soem_utilities::soem_init( adapter_, 10.0 ) )
     {
       return;
     }
-    ROS_INFO("%d slaves found and configured.",ec_slavecount);
+    printf("%d slaves found and configured.",ec_slavecount);
     //------------------------------------------------------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------------------------------------------------   
     char* IOmap = coe_soem_utilities::soem_config( 10.0, false );
@@ -121,7 +121,7 @@ public:
 
     for( int iSlave = 1; iSlave <= ec_slavecount; iSlave++ )
     {
-      ROS_INFO("*************************** Slave %d ******************************* ", iSlave);
+      printf("*************************** Slave %d ******************************* ", iSlave);
       
       coe_master::ModuleDescriptorPtr  module( new coe_master::ModuleDescriptor( *nh_, "", std::get<0>( module_list.at(iSlave-1) ), iSlave, true ) );
       
@@ -130,7 +130,7 @@ public:
       
       updateNodeConfiguration(module, IOmap );
       
-      ROS_INFO("Set params to rosparam server (%s)", module->getIdentifier().c_str() );
+      printf("Set params to rosparam server (%s)", module->getIdentifier().c_str() );
       cnr::param::node_t xml_module;
       coe_master::ModuleData::get(*module,xml_module);
       nh_->setParam(module->getIdentifier(),xml_module);
@@ -138,13 +138,13 @@ public:
     
     if( !network_->initNetworkNames( ) )
     {
-      ROS_FATAL("Fail in extracting the coe configuration information from ros param server. Abort.");
+      printf("Fail in extracting the coe configuration information from ros param server. Abort.");
       return;
     }
 
     while ( !coe_soem_utilities::soem_reset_to_operational_state( ) )
     {
-      ROS_INFO("SOEM wait for EC_STATE_OPERATIONAL state ... try again ... ");
+      printf("SOEM wait for EC_STATE_OPERATIONAL state ... try again ... ");
       if( !ros::ok() )
       {
         ec_close();
@@ -153,7 +153,7 @@ public:
       ec_send_processdata();
       ec_receive_processdata(EC_TIMEOUTRET);
     }
-    ROS_INFO("Operational state reached for all slaves.");
+    printf("Operational state reached for all slaves.");
     
     while( ros::ok() )
     {
@@ -169,29 +169,29 @@ public:
   {
     try 
     {
-        ROS_INFO("Prepare RT thread.");
+        printf("Prepare RT thread.");
 
         boost::thread::attributes coe_fsm_thread_attr;
         
         coe_fsm_thread_attr.set_stack_size( PTHREAD_STACK_MIN + MY_STACK_SIZE );
 
-        ROS_INFO("Create FSM Coe thread.");
+        printf("Create FSM Coe thread.");
         boost::thread coe_fsm_thread( coe_fsm_thread_attr, boost::bind(&CoeController::coeFsmThread, this) );
         coe_fsm_thread.join();
         
-        ROS_INFO("Wait for shutdown..");
+        printf("Wait for shutdown..");
         ros::waitForShutdown();
     }
     catch( std::exception& e )
     {
-      ROS_ERROR("%s", e.what());
-      ROS_ERROR("Abort.");
+      printf("%s", e.what());
+      printf("Abort.");
       return false;
     }
     catch (...)
     {
-      ROS_ERROR("Unhandled exception ");
-      ROS_ERROR("Abort.");
+      printf("Unhandled exception ");
+      printf("Abort.");
       return false;
     }
     return true;
@@ -225,14 +225,14 @@ int main(int argc, char* argv[])
   }
   catch( std::exception& e )
   {
-    ROS_ERROR("%s", e.what());
-    ROS_ERROR("Abort.");
+    printf("%s", e.what());
+    printf("Abort.");
     return -1;
   }
   catch (...)
   {
-    ROS_ERROR("Unhandled exception ");
-    ROS_ERROR("Abort.");
+    printf("Unhandled exception ");
+    printf("Abort.");
     return -1;
   }
 

@@ -33,10 +33,9 @@
  *********************************************************************/
 
 // Author: Blaise Gassend
-#ifndef __DRIVER_BASE__DRIVER_H__
-#define __DRIVER_BASE__DRIVER_H__
+#ifndef COE_MASTER__COE_MASTER__H
+#define COE_MASTER__COE_MASTER__H
 
-#include <ros/ros.h>
 #include <boost/function.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/mutex.hpp>
@@ -271,7 +270,7 @@ public:
   void setStatusMessage(const std::string &msg, bool ok = false, bool recovery_complete = false)
   {
     boost::mutex::scoped_lock lock_(status_message_mutex_);
-    ROS_DEBUG("%s", msg.c_str());
+    printf("%s", msg.c_str());
     status_message_ = msg;
     status_ok_ = ok;
     status_recovery_complete_ |= recovery_complete;
@@ -283,7 +282,7 @@ public:
     char buff[1000]; // @todo This could be done more elegantly.
     va_start(va, format);
     if (vsnprintf(buff, sizeof(buff), format, va) >= (int) sizeof(buff))
-      ROS_DEBUG("Really long string in DriverFSM::setStatusMessagef, it was trunccated.");
+      printf("Really long string in DriverFSM::setStatusMessagef, it was trunccated.");
     setStatusMessage(std::string(buff));
     va_end(va);
   }
@@ -313,7 +312,7 @@ private:
   {
     boost::recursive_mutex::scoped_lock lock_(mutex_);
     state_t orig = state_;
-    ROS_DEBUG("Trying transition %s from %s to %s.", getTransitionName(transition).c_str(), getStateName(orig).c_str(), getStateName(target).c_str());
+    printf("Trying transition %s from %s to %s.", getTransitionName(transition).c_str(), getStateName(orig).c_str(), getStateName(target).c_str());
     try
     {
       (this->*transition)();
@@ -321,13 +320,13 @@ private:
     catch (...) /// @todo print the exception message better.
     //catch (std::Exception e)
     {
-      ROS_WARN("Caught exception in transition %s from %s to %s.\n", getTransitionName(transition).c_str(), getStateName(orig).c_str(), getStateName(target).c_str());
-      //ROS_WARN("Caught exception in transition from %s to %s.\n%s", e.what(), getTransitionName(transition).c_str(), getStateName(orig).c_str(), getStateName(target).c_str());
+      printf("Caught exception in transition %s from %s to %s.\n", getTransitionName(transition).c_str(), getStateName(orig).c_str(), getStateName(target).c_str());
+      //printf("Caught exception in transition from %s to %s.\n%s", e.what(), getTransitionName(transition).c_str(), getStateName(orig).c_str(), getStateName(target).c_str());
     }
     bool out = state_ == target;
     if (out && transition == &DriverFSM::doOpen)
       postOpenHook();
-    ROS_DEBUG("Transition %s from %s to %s %s.", getTransitionName(transition).c_str(), getStateName(orig).c_str(), getStateName(target).c_str(), out ? "succeeded" : "failed");
+    printf("Transition %s from %s to %s %s.", getTransitionName(transition).c_str(), getStateName(orig).c_str(), getStateName(target).c_str(), out ? "succeeded" : "failed");
     return out;
   }
 };
@@ -336,5 +335,4 @@ private:
 
 };
 
-#endif
-
+#endif  // COE_MASTER__COE_MASTER__H
