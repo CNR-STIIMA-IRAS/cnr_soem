@@ -124,8 +124,8 @@ struct ClientExample
   {
     R req;
     req.index = 1;
-    req.module_id = "elmo1";
-    req.sdotype = req.TYPE_I16;
+    req.module_id = "elmo1__1";
+    req.sdotype = R::TYPE_I16;
     req.index = 0x1234;
     req.subindex = 1;
     std::string req_str = coe_master::to_string(req);
@@ -142,7 +142,7 @@ struct ClientExample
     R req;
     req.index = 1;
     req.module_id = "ciao";
-    req.sdotype = req.TYPE_I16;
+    req.sdotype = R::TYPE_I16;
     req.index = 0x1234;
     req.subindex = 1;
     std::string req_str = coe_master::to_string(req);
@@ -163,6 +163,7 @@ struct ClientExample
   bool read_response()
   {
     std::string response = c.read_response(std::chrono::seconds(10));
+    std::cout << "Response string: " << response << std::endl;
     R res = coe_master::from_string<R>(response);
     std::cout << "Success: " << res.success << std::endl;
     std::cout << "What: " << res.what << std::endl;
@@ -202,6 +203,7 @@ TEST(TestSuite, clntGetSdoCreation)
 
 TEST(TestSuite, clntSetSdo)
 {
+  EXPECT_TRUE(bool(sdo_server));
   EXPECT_TRUE(does_not_throw([&] { set_sdo_client->write_correct_request<coe_master::set_sdo_t::Request>(); }));
   EXPECT_TRUE(set_sdo_client->read_response<coe_master::set_sdo_t::Response>());
 }

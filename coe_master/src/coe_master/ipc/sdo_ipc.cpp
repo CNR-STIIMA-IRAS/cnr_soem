@@ -18,6 +18,7 @@
 namespace coe_master
 {
 
+template <typename R>
 bool syncSdo(const int addr,
              const uint8_t& sdotype,
              const uint16_t& index,
@@ -25,7 +26,8 @@ bool syncSdo(const int addr,
              const double& /*timeout_ms*/,
              const bool& read_sdo,
              uint8_t* value,
-             std::string& what)
+             std::string& what,
+             bool fake_ec)
 {
   size_t ll = __LINE__;
   try
@@ -44,33 +46,33 @@ bool syncSdo(const int addr,
     ll = __LINE__;
     switch (sdotype)
     {
-      case coe_master::set_sdo_t::Request::TYPE_U8:
+      case R::TYPE_U8:
         dim = 1;
         break;
-      case coe_master::set_sdo_t::Request::TYPE_U16:
+      case R::TYPE_U16:
         dim = 2;
         break;
-      case coe_master::set_sdo_t::Request::TYPE_U32:
+      case R::TYPE_U32:
         dim = 4;
         break;
-      case coe_master::set_sdo_t::Request::TYPE_U64:
+      case R::TYPE_U64:
         dim = 8;
         break;
-      case coe_master::set_sdo_t::Request::TYPE_I8:
+      case R::TYPE_I8:
         dim = 1;
         break;
-      case coe_master::set_sdo_t::Request::TYPE_I16:
+      case R::TYPE_I16:
         dim = 2;
         break;
-      case coe_master::set_sdo_t::Request::TYPE_I32:
+      case R::TYPE_I32:
         dim = 4;
         break;
-      case coe_master::set_sdo_t::Request::TYPE_I64:
+      case R::TYPE_I64:
         dim = 4;
         break;
       default:
       {
-        what = "SDO Type not recognized";
+        what = "SDO Type (uint8: " + std::to_string(sdotype) + ")not recognized";
         return false;
       }
     }
@@ -78,11 +80,6 @@ bool syncSdo(const int addr,
     nominal_dim = dim;
 
     int retval = -1;
-    if (dim <= 8)
-    {
-      what = "Computed dimension is less than 8...";
-      return false;
-    }
     ll = __LINE__;
     if (read_sdo)
     {
@@ -93,7 +90,14 @@ bool syncSdo(const int addr,
       std::memset(&buffer[0], 0x0, sizeof(uint8_t) * dim);
 
       ll = __LINE__;
-      retval = ec_SDOread(addr, index, (uint8_t)subindex, FALSE, &dim, buffer, EC_TIMEOUTSAFE);
+      if(fake_ec)
+      {
+        retval = 1;
+      }
+      else
+      {
+        retval = ec_SDOread(addr, index, (uint8_t)subindex, FALSE, &dim, buffer, EC_TIMEOUTSAFE);
+      }
 
       ll = __LINE__;
       std::memcpy(value, buffer, dim * sizeof(uint8_t));
@@ -114,8 +118,15 @@ bool syncSdo(const int addr,
       do
       {
         ll = __LINE__;
-        retval = ec_SDOwrite(
-            addr, index, (uint8_t)subindex, dim, ((uint8_t)subindex == 0) ? TRUE : FALSE, buffer, EC_TIMEOUTRXM);
+        if(fake_ec)
+        {
+          retval = 1;
+        }
+        else
+        {
+          retval = ec_SDOwrite(
+              addr, index, (uint8_t)subindex, dim, ((uint8_t)subindex == 0) ? TRUE : FALSE, buffer, EC_TIMEOUTRXM);
+        }
 
         ll = __LINE__;
         if (retval > 0) break;
@@ -213,6 +224,7 @@ SdoManager::~SdoManager()
 
 void SdoManager::setSdo(const std::string& income, std::string& outcome)
 {
+  std::cout << __PRETTY_FUNCTION__ << ": " << __LINE__ << "!" << std::endl;
   coe_master::set_sdo_t::Response res;
   std::string what = "setSdo";
 
@@ -227,9 +239,10 @@ void SdoManager::setSdo(const std::string& income, std::string& outcome)
 
     std::string what;
     int addr = checkModuleName(module_addresses_map_, req.module_id, what);
-    res.success =
-        (addr < 0) ? false
-                   : syncSdo(addr, req.sdotype, req.index, req.subindex, req.timeout_ms, false, &(req.value[0]), what);
+    res.success = (addr < 0)
+                      ? false
+                      : syncSdo<coe_master::set_sdo_t::Request>(
+                            addr, req.sdotype, req.index, req.subindex, req.timeout_ms, false, &(req.value[0]), what, true);
 
     if (!res.success)
     {
@@ -263,8 +276,8 @@ void SdoManager::getSdo(const std::string& income, std::string& outcome)
     }
     else
     {
-      res.success =
-          syncSdo(addr, req.sdotype, req.index, req.subindex, req.timeout_ms, true, &(res.value[0]), res.what);
+      res.success = syncSdo<coe_master::get_sdo_t::Request>(
+          addr, req.sdotype, req.index, req.subindex, req.timeout_ms, true, &(res.value[0]), res.what, true);
     }
   }
   outcome = coe_master::to_string(res);

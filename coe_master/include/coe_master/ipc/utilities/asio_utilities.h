@@ -62,8 +62,8 @@ class AsioSession : public std::enable_shared_from_this<AsioSession>
   {
     max_length = 1024
   };
-  char income_data_[1024];
-  char outcome_data_[1024];
+  char income_data_[max_length];
+  char outcome_data_[max_length];
 };
 
 class AsioServer

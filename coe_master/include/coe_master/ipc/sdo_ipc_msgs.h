@@ -131,7 +131,8 @@ inline std::string to_string(const coe_master::set_sdo_t::Request& req)
   json["timeout_ms"] = req.timeout_ms;
   json["index"] = req.index;
   json["subindex"] = req.subindex;
-  json["sdotype"] = req.sdotype;
+  json["sdotype"] = Json::Value(Json::uintValue); 
+   json["sdotype"] =req.sdotype;
   json["value"] = Json::Value(Json::arrayValue);
   for (std::size_t i = 0; i != 8; i++)
   {
@@ -141,7 +142,8 @@ inline std::string to_string(const coe_master::set_sdo_t::Request& req)
   json.setComment(std::string("// EOF"), Json::CommentPlacement::commentAfter);
 
   Json::StreamWriterBuilder stream_write_builder;
-  return Json::writeString(stream_write_builder, json);
+  auto str = Json::writeString(stream_write_builder, json);
+  return str;
 }
 
 template <>
@@ -175,7 +177,7 @@ inline bool validate(const std::string& income, std::string& what)
     return false;
   }
 
-  bool ok;
+  bool ok = true;
   std::vector<std::string> mandatory_fields;
   if (typeid(R()) == typeid(coe_master::get_sdo_t::Request()))
   {
@@ -211,6 +213,35 @@ inline bool validate(const std::string& income, std::string& what)
 }
 
 template <typename R>
+inline Json::Value to_json(const std::string& income)
+{
+  std::string what;
+  if(!validate<R>(income, what))
+  {
+    throw std::runtime_error(std::string(std::string(__PRETTY_FUNCTION__) + ":" + std::to_string(__LINE__) +
+                                         ": Failed to parse the JSON, errors: " + what)
+                                 .c_str());
+  }
+
+  Json::CharReaderBuilder char_reader_builder;
+  Json::CharReader* reader = char_reader_builder.newCharReader();
+
+  Json::Value json;
+  std::string errors;
+
+  bool parsingSuccessful = reader->parse(income.c_str(), income.c_str() + income.size(), &json, &errors);
+  delete reader;
+
+  if (!parsingSuccessful)
+  {
+    throw std::runtime_error(std::string(std::string(__PRETTY_FUNCTION__) + ":" + std::to_string(__LINE__) +
+                                         ": Failed to parse the JSON, errors: " + errors)
+                                 .c_str());
+  }
+  return json;
+}
+
+template <typename R>
 inline R from_string(const std::string&)
 {
   return R();
@@ -225,28 +256,15 @@ template <>
 inline coe_master::get_sdo_t::Request from_string(const std::string& str)
 {
   coe_master::get_sdo_t::Request req;
-
-  Json::CharReaderBuilder char_reader_builder;
-  Json::CharReader* reader = char_reader_builder.newCharReader();
-
-  Json::Value json;
-  std::string errors;
-
-  bool parsingSuccessful = reader->parse(str.c_str(), str.c_str() + str.size(), &json, &errors);
-  delete reader;
-
-  if (!parsingSuccessful)
-  {
-    throw std::runtime_error(std::string(std::string(__PRETTY_FUNCTION__) + ":" + std::to_string(__LINE__) +
-                                         ": Failed to parse the JSON, errors: " + errors)
-                                 .c_str());
-  }
-
+  
+  Json::Value json = to_json<coe_master::get_sdo_t::Request>(str);
+  
   req.desc = json.get("desc", "").asString();
   req.module_id = json.get("module_id", "").asString();
   req.timeout_ms = json.get("timeout_ms", 0).asInt();
   req.index = json.get("index", 0).asInt();
   req.subindex = json.get("subindex", 0).asInt();
+  req.sdotype = coe_master::get_sdo_t::Request::sdotype_t(json.get("sdotype", 0).asUInt());
   return req;
 }
 
@@ -254,78 +272,42 @@ template <>
 inline coe_master::get_sdo_t::Response from_string(const std::string& str)
 {
   coe_master::get_sdo_t::Response res;
-  Json::CharReaderBuilder char_reader_builder;
-  Json::CharReader* reader = char_reader_builder.newCharReader();
+  Json::Value json = to_json<coe_master::get_sdo_t::Response>(str);
 
-  Json::Value json;
-  std::string errors;
-
-  bool parsingSuccessful = reader->parse(str.c_str(), str.c_str() + str.size(), &json, &errors);
-  delete reader;
-
-  if (!parsingSuccessful)
-  {
-    throw std::runtime_error(std::string(std::string(__PRETTY_FUNCTION__) + ":" + std::to_string(__LINE__) +
-                                         ": Failed to parse the JSON, errors: " + errors)
-                                 .c_str());
-  }
   res.success = json["success"].asBool();
+  res.what = json["what"].asString();
   Json::Value tmp = json["value"];
   for (int i = 0; i < 8; i++) res.value[i] = tmp[i].asUInt();
 
   return res;
 }
 
+template <>
 inline coe_master::set_sdo_t::Request from_string(const std::string& str)
 {
   coe_master::set_sdo_t::Request req;
-
-  Json::CharReaderBuilder char_reader_builder;
-  Json::CharReader* reader = char_reader_builder.newCharReader();
-
-  Json::Value json;
-  std::string errors;
-
-  bool parsingSuccessful = reader->parse(str.c_str(), str.c_str() + str.size(), &json, &errors);
-  delete reader;
-
-  if (!parsingSuccessful)
-  {
-    throw std::runtime_error(std::string(std::string(__PRETTY_FUNCTION__) + ":" + std::to_string(__LINE__) +
-                                         ": Failed to parse the JSON, errors: " + errors)
-                                 .c_str());
-  }
+  Json::Value json = to_json<coe_master::set_sdo_t::Request>(str);
 
   req.desc = json.get("desc", "").asString();
   req.module_id = json.get("module_id", "").asString();
   req.timeout_ms = json.get("timeout_ms", 0).asUInt();
   req.index = json.get("index", 0).asUInt();
   req.subindex = json.get("subindex", 0).asUInt();
+  req.sdotype = coe_master::set_sdo_t::Request::sdotype_t(json.get("sdotype", 0).asUInt());
 
   for (int i = 0; i < 8; i++) req.value[i] = json["value"][i].asUInt();
 
   return req;
 }
 
-inline coe_master::set_sdo_t::Response to_string(const std::string& str)
+template <>
+inline coe_master::set_sdo_t::Response from_string(const std::string& str)
 {
   coe_master::set_sdo_t::Response res;
-  Json::CharReaderBuilder char_reader_builder;
-  Json::CharReader* reader = char_reader_builder.newCharReader();
+  Json::Value json = to_json<coe_master::set_sdo_t::Response>(str);
 
-  Json::Value json;
-  std::string errors;
-
-  bool parsingSuccessful = reader->parse(str.c_str(), str.c_str() + str.size(), &json, &errors);
-  delete reader;
-
-  if (!parsingSuccessful)
-  {
-    throw std::runtime_error(std::string(std::string(__PRETTY_FUNCTION__) + ":" + std::to_string(__LINE__) +
-                                         ": Failed to parse the JSON, errors: " + errors)
-                                 .c_str());
-  }
   res.success = json["success"].asBool();
+  res.what = json["what"].asString();
 
   return res;
 }
