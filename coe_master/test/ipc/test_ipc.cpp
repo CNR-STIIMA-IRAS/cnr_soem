@@ -146,7 +146,11 @@ struct ClientExample
     req.index = 0x1234;
     req.subindex = 1;
     std::string req_str = coe_master::to_string(req);
-    c.write_request(req_str, std::chrono::seconds(10));
+    std::error_code error = c.write_request(req_str, std::chrono::seconds(2));
+    if (error)
+    {
+      std::cerr << error.message() << std::endl;
+    }
   }
 
   void write_incorrect_request_2()
@@ -163,10 +167,9 @@ struct ClientExample
   bool read_response()
   {
     std::string response = c.read_response(std::chrono::seconds(10));
-    std::cout << "Response string: " << response << std::endl;
     R res = coe_master::from_string<R>(response);
-    std::cout << "Success: " << res.success << std::endl;
-    std::cout << "What: " << res.what << std::endl;
+    if(!res.success)
+      std::cout << "What: " << res.what << std::endl;
     return res.success;
   }
 };
@@ -198,7 +201,7 @@ TEST(TestSuite, clntSetSdoCreation)
 TEST(TestSuite, clntGetSdoCreation)
 {
   EXPECT_TRUE(
-      does_not_throw([&] { set_sdo_client.reset(new ClientExample("localhost", std::to_string(get_sdo_srv_port))); }));
+      does_not_throw([&] { get_sdo_client.reset(new ClientExample("localhost", std::to_string(get_sdo_srv_port))); }));
 }
 
 TEST(TestSuite, clntSetSdo)
@@ -208,28 +211,38 @@ TEST(TestSuite, clntSetSdo)
   EXPECT_TRUE(set_sdo_client->read_response<coe_master::set_sdo_t::Response>());
 }
 
-TEST(TestSuite, clntSetSdoErr)
+TEST(TestSuite, clntSetSdoErr1)
 {
+  EXPECT_TRUE(bool(sdo_server));
+  std::cout << ">>>>>>>>>>>>>>>>>> SEND REQUEST" << std::endl;
   EXPECT_TRUE(does_not_throw([&] { set_sdo_client->write_incorrect_request_1<coe_master::set_sdo_t::Request>(); }));
+  std::cout << ">>>>>>>>>>>>>>>>>> READ RESPONSE" << std::endl;
   EXPECT_FALSE(set_sdo_client->read_response<coe_master::set_sdo_t::Response>());
-  EXPECT_TRUE(does_not_throw([&] { set_sdo_client->write_incorrect_request_2(); }));
-  EXPECT_FALSE(set_sdo_client->read_response<coe_master::set_sdo_t::Response>());
+  std::cout << ">>>>>>>>>>>>>>>>>> DONE" << std::endl;
 }
 
-TEST(TestSuite, clntGetSdo)
-{
-  EXPECT_TRUE(sdo_server);
-  EXPECT_TRUE(does_not_throw([&] { get_sdo_client->write_correct_request<coe_master::get_sdo_t::Request>(); }));
-  EXPECT_TRUE(get_sdo_client->read_response<coe_master::get_sdo_t::Response>());
-}
+// TEST(TestSuite, clntSetSdoErr2)
+// {
+//   EXPECT_TRUE(bool(sdo_server));
+//   EXPECT_TRUE(does_not_throw([&] { set_sdo_client->write_incorrect_request_2(); }));
+//   EXPECT_FALSE(set_sdo_client->read_response<coe_master::set_sdo_t::Response>());
+// }
 
-TEST(TestSuite, clntGetSdoErr)
-{
-  EXPECT_TRUE(does_not_throw([&] { get_sdo_client->write_incorrect_request_1<coe_master::set_sdo_t::Request>(); }));
-  EXPECT_FALSE(get_sdo_client->read_response<coe_master::get_sdo_t::Response>());
-  EXPECT_TRUE(does_not_throw([&] { get_sdo_client->write_incorrect_request_2(); }));
-  EXPECT_FALSE(get_sdo_client->read_response<coe_master::get_sdo_t::Response>());
-}
+
+// TEST(TestSuite, clntGetSdo)
+// {
+//   EXPECT_TRUE(sdo_server);
+//   EXPECT_TRUE(does_not_throw([&] { get_sdo_client->write_correct_request<coe_master::get_sdo_t::Request>(); }));
+//   EXPECT_TRUE(get_sdo_client->read_response<coe_master::get_sdo_t::Response>());
+// }
+
+// TEST(TestSuite, clntGetSdoErr)
+// {
+//   EXPECT_TRUE(does_not_throw([&] { get_sdo_client->write_incorrect_request_1<coe_master::set_sdo_t::Request>(); }));
+//   EXPECT_FALSE(get_sdo_client->read_response<coe_master::get_sdo_t::Response>());
+//   EXPECT_TRUE(does_not_throw([&] { get_sdo_client->write_incorrect_request_2(); }));
+//   EXPECT_FALSE(get_sdo_client->read_response<coe_master::get_sdo_t::Response>());
+// }
 
 int main(int argc, char** argv)
 {

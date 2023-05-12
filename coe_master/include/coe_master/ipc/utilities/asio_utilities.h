@@ -9,6 +9,8 @@ namespace coe_master
 
 namespace utils
 {
+constexpr int max_length = 1024;
+
 using Executor = std::function<void(const std::string& req, std::string& res)>;
 
 class AsioSession : public std::enable_shared_from_this<AsioSession>
@@ -33,10 +35,12 @@ class AsioSession : public std::enable_shared_from_this<AsioSession>
                             {
                               if (!ec)
                               {
-                                std::string income{income_data_};
+                                std::cout << "do_read" << income_data_ << std::endl; 
+                                std::string income = income_data_;
+                                std::memset(income_data_, 0x0, sizeof(char) * max_length);
                                 std::string outcome;
                                 executor_(income, outcome);
-                                short wlenght = std::min(int(outcome.size()), 1024);
+                                short wlenght = std::min(int(outcome.size()), max_length);
                                 std::memcpy(outcome_data_, outcome.data(), wlenght);
                                 do_write(wlenght);
                               }
@@ -50,6 +54,7 @@ class AsioSession : public std::enable_shared_from_this<AsioSession>
                              boost::asio::buffer(outcome_data_, lenght),
                              [this, self](boost::system::error_code ec, std::size_t /*length*/)
                              {
+                              std::memset(outcome_data_, 0x0, sizeof(char) * max_length);
                                if (!ec)
                                {
                                  do_read();
@@ -58,10 +63,7 @@ class AsioSession : public std::enable_shared_from_this<AsioSession>
   }
 
   boost::asio::ip::tcp::socket socket_;
-  enum : int
-  {
-    max_length = 1024
-  };
+    
   char income_data_[max_length];
   char outcome_data_[max_length];
 };
@@ -201,7 +203,10 @@ class AsioClient
     boost::asio::async_write(socket_,
                              boost::asio::buffer(data),
                              [&](const std::error_code& result_error, std::size_t /*result_n*/)
-                             { error = result_error; });
+                             {
+                              std::cout << "write_request: " << data << std::endl; 
+                              error = result_error;
+                            });
 
     // Run the operation until it completes, or until the timeout.
     run(timeout);

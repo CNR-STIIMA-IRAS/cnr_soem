@@ -182,7 +182,7 @@ SdoManager::SdoManager(const std::map<int, std::string>& module_addresses_map,
         io_context_,
         host,
         set_sdo_port,
-        std::bind(&SdoManager::getSdo, this, std::placeholders::_1, std::placeholders::_2));
+        std::bind(&SdoManager::setSdo, this, std::placeholders::_1, std::placeholders::_2));
 
     std::cout << "Prepare the GET SDO server .." << std::endl;
     ll = __LINE__;
@@ -224,7 +224,6 @@ SdoManager::~SdoManager()
 
 void SdoManager::setSdo(const std::string& income, std::string& outcome)
 {
-  std::cout << __PRETTY_FUNCTION__ << ": " << __LINE__ << "!" << std::endl;
   coe_master::set_sdo_t::Response res;
   std::string what = "setSdo";
 
@@ -249,7 +248,6 @@ void SdoManager::setSdo(const std::string& income, std::string& outcome)
       res.what = "Failed SdoManager::setSdo: " + what;
     }
   }
-  std::cout << __PRETTY_FUNCTION__ << ": " << __LINE__ << " what: " << res.what << std::endl;
   outcome = coe_master::to_string(res);
 }
 

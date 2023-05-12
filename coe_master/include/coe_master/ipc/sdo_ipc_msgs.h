@@ -179,36 +179,48 @@ inline bool validate(const std::string& income, std::string& what)
 
   bool ok = true;
   std::vector<std::string> mandatory_fields;
+  std::string elab = "";
   if (typeid(R()) == typeid(coe_master::get_sdo_t::Request()))
   {
+    elab = "coe_master::get_sdo_t::Request()";
     mandatory_fields = {"module_id", "timeout_ms", "index", "subindex", "sdotype"};
   }
   else if (typeid(R()) == typeid(coe_master::set_sdo_t::Request()))
   {
+    elab = "coe_master::set_sdo_t::Request()";
     mandatory_fields = {"module_id", "timeout_ms", "index", "subindex", "sdotype", "value"};
   }
   if (typeid(R()) == typeid(coe_master::get_sdo_t::Response()))
   {
+    elab = "coe_master::get_sdo_t::Response()";
     mandatory_fields = {"success", "value"};
   }
   else if (typeid(R()) == typeid(coe_master::set_sdo_t::Response()))
   {
+    elab = "coe_master::set_sdo_t::Response()";
     mandatory_fields = {"success"};
   }
 
   what = "";
+  std::stringstream ss;
+  ss << "******************* VALIDATE:" << elab  << std::endl;
+  ss << json << std::endl;
+  ss << "mandatory fields: " ;
   for (auto const& f : mandatory_fields)
   {
+    ss << f << ",";
     if (!json.isMember(f))
     {
       what += "'" + f + "' ";
       ok = false;
     }
   }
+  std::cout << ss.str() << std::endl;
   if(!ok)
   {
     what = "In the JSON message are missing the fields: " + what;
   }
+
   return ok;
 }
 
