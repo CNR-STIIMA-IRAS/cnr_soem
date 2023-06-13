@@ -11,9 +11,11 @@
 #include <memory>
 #include <utility>
 
+#include <cnr_ipc_utilities/asio_ipc.h>
+
 #include <coe_master/ipc/sdo_ipc.h>
 #include <coe_master/ipc/sdo_ipc_msgs.h>
-#include <coe_master/ipc/utilities/asio_utilities.h>
+
 
 /**
  * @brief
@@ -22,7 +24,7 @@
 
 struct ClientExample
 {
-  coe_master::utils::AsioClient c;
+  cnr::ipc::AsioClient c;
 
   ClientExample(const std::string& host, const std::string& port)
   {

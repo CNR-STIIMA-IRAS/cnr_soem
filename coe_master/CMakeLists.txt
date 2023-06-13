@@ -21,7 +21,7 @@ cnr_set_flags()
 option(USE_ROS1                 "ROS SUPPORT" OFF)
 option(ENABLE_TESTING           "ENABLE TESTING" OFF)
 option(ENABLE_COVERAGE_TESTING  "ENABLE COVERAGE TESTING" OFF)
-option(COMPILE_EXAMPLE          "COMPILE THE EXAMPLE" OFF)
+option(BUILD_EXAMPLES           "BUILD THE EXAMPLES" OFF)
 
 if(USE_ROS1)
   set(ENABLE_TESTING ${CATKIN_ENABLE_TESTING})
@@ -39,7 +39,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(soem REQUIRED)
 if(USE_ROS1)
   find_package( catkin REQUIRED
-                COMPONENTS  coe_soem_utilities
+                COMPONENTS  cnr_ipc_utilities
+                            coe_soem_utilities
                             coe_core
                             rosparam_utilities
                             realtime_utilities
@@ -52,6 +53,7 @@ if(USE_ROS1)
   )          
 else()
   find_package(coe_core REQUIRED)
+  find_package(cnr_ipc_utilities REQUIRED)
   find_package(cnr_param REQUIRED)
   find_package(coe_soem_utilities REQUIRED)
   find_package(realtime_utilities REQUIRED)
@@ -76,6 +78,8 @@ cnr_enable_testing(ENABLE_TESTING ENABLE_COVERAGE USE_ROS1)
 #################
 ## Build       ##
 #################
+
+## INCLUDE DIRS
 list(APPEND DEPENDENCIES_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 if(USE_ROS1)
   list(APPEND DEPENDENCIES_INCLUDE_DIRS ${catkin_INCLUDE_DIRS})
@@ -87,7 +91,15 @@ endif()
 list(APPEND BUILD_INTERFACE_INCLUDE_DIRS ${DEPENDENCIES_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/include)
 list(APPEND INSTALL_INTERFACE_INCLUDE_DIRS include ${DEPENDENCIES_INCLUDE_DIRS} include)
 
-set( rt_LIBRARIES soem Boost::system pthread rt ${JSONCPP_LIBRARIES} ${BOOST_LIBRARIES})
+## LIBRARIES
+list(APPEND DEPENDENCIES_LIBRARIES soem Boost::system pthread rt ${JSONCPP_LIBRARIES} ${BOOST_LIBRARIES})
+if(USE_ROS1)
+  list(APPEND DEPENDENCIES_LIBRARIES ${catkin_LIBRARIES})
+else()
+  list(APPEND DEPENDENCIES_LIBRARIES ${cnr_ipc_utilities_LIBRARIES} ${coe_core_LIBRARIES}
+            ${coe_soem_utilities_LIBRARIES} ${realtime_utilities_LIBRARIES})
+endif()
+
 #####################################################################
 add_library(${PROJECT_NAME}_ipc
               src/${PROJECT_NAME}/ipc/sdo_ipc.cpp
@@ -97,18 +109,12 @@ target_include_directories(${PROJECT_NAME}_ipc PUBLIC
   "$<BUILD_INTERFACE:${BUILD_INTERFACE_INCLUDE_DIRS}>"
     "$<INSTALL_INTERFACE:${INSTALL_INTERFACE_INCLUDE_DIRS}>")
 
-if(USE_ROS1)
-  target_link_libraries(${PROJECT_NAME}_ipc ${catkin_LIBRARIES} ${rt_LIBRARIES}
-  )
-else()
-  target_link_libraries(${PROJECT_NAME}_ipc cnr_param_utilities 
-     ${coe_core_LIBRARIES} ${coe_soem_utilities_LIBRARIES}
-      ${realtime_utilities_LIBRARIES}  ${rt_LIBRARIES} 
-  )
-endif()
+target_link_libraries(${PROJECT_NAME}_ipc ${catkin_LIBRARIES} ${DEPENDENCIES_LIBRARIES})
 
-add_executable(sdo_server_client_example examples/sdo_server_client_example.cpp)
-target_link_libraries(sdo_server_client_example ${PROJECT_NAME}_ipc)
+if(BUILD_EXAMPLES)
+  add_executable(sdo_server_client_example examples/sdo_server_client_example.cpp)
+  target_link_libraries(sdo_server_client_example ${PROJECT_NAME}_ipc)
+endif()
 #####################################################################
 
 # add_library(${PROJECT_NAME}

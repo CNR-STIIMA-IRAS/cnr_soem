@@ -51,7 +51,7 @@ macro(cnr_set_flags)
 
   else()
     
-    set(LOCAL_CXX_STANDARD 14)
+    set(LOCAL_CXX_STANDARD 17)
     if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       
       add_compile_options(-Wall -Wextra -Wpedantic -D_TIME_BITS=64 -D_FILE_OFFSET_BITS=64)
@@ -64,7 +64,7 @@ macro(cnr_set_flags)
 
     endif()
 
-    # Default to C++14
+    # Default to C++17
     if(NOT CMAKE_CXX_STANDARD)
       message(STATUS "CMAKE CXX STANDARD: ${LOCAL_CXX_STANDARD}")
       set(CMAKE_CXX_STANDARD ${LOCAL_CXX_STANDARD})

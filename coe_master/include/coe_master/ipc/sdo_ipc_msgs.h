@@ -203,19 +203,14 @@ inline bool validate(const std::string& income, std::string& what)
 
   what = "";
   std::stringstream ss;
-  ss << "******************* VALIDATE:" << elab  << std::endl;
-  ss << json << std::endl;
-  ss << "mandatory fields: " ;
   for (auto const& f : mandatory_fields)
   {
-    ss << f << ",";
     if (!json.isMember(f))
     {
       what += "'" + f + "' ";
       ok = false;
     }
   }
-  std::cout << ss.str() << std::endl;
   if(!ok)
   {
     what = "In the JSON message are missing the fields: " + what;
@@ -225,32 +220,25 @@ inline bool validate(const std::string& income, std::string& what)
 }
 
 template <typename R>
-inline Json::Value to_json(const std::string& income)
+inline bool to_json(const std::string& income, Json::Value& ret, std::string& what)
 {
-  std::string what;
   if(!validate<R>(income, what))
   {
-    throw std::runtime_error(std::string(std::string(__PRETTY_FUNCTION__) + ":" + std::to_string(__LINE__) +
-                                         ": Failed to parse the JSON, errors: " + what)
-                                 .c_str());
+    what = "Failed to parse the JSON, errors: " + what;
+    return false;
   }
 
   Json::CharReaderBuilder char_reader_builder;
   Json::CharReader* reader = char_reader_builder.newCharReader();
 
-  Json::Value json;
-  std::string errors;
-
-  bool parsingSuccessful = reader->parse(income.c_str(), income.c_str() + income.size(), &json, &errors);
+  bool ok = reader->parse(income.c_str(), income.c_str() + income.size(), &ret, &what);
   delete reader;
 
-  if (!parsingSuccessful)
+  if (!ok)
   {
-    throw std::runtime_error(std::string(std::string(__PRETTY_FUNCTION__) + ":" + std::to_string(__LINE__) +
-                                         ": Failed to parse the JSON, errors: " + errors)
-                                 .c_str());
+    what = "Failed to parse the JSON, errors: " + what;
   }
-  return json;
+  return ok;
 }
 
 template <typename R>
@@ -269,7 +257,12 @@ inline coe_master::get_sdo_t::Request from_string(const std::string& str)
 {
   coe_master::get_sdo_t::Request req;
   
-  Json::Value json = to_json<coe_master::get_sdo_t::Request>(str);
+  std::string what; 
+  Json::Value json;
+  if(!to_json<coe_master::get_sdo_t::Request>(str,json,what))
+  {
+    throw std::runtime_error(what);
+  }
   
   req.desc = json.get("desc", "").asString();
   req.module_id = json.get("module_id", "").asString();
@@ -284,7 +277,12 @@ template <>
 inline coe_master::get_sdo_t::Response from_string(const std::string& str)
 {
   coe_master::get_sdo_t::Response res;
-  Json::Value json = to_json<coe_master::get_sdo_t::Response>(str);
+  std::string what; 
+  Json::Value json;
+  if(!to_json<coe_master::get_sdo_t::Response>(str,json,what))
+  {
+    throw std::runtime_error(what);
+  }
 
   res.success = json["success"].asBool();
   res.what = json["what"].asString();
@@ -298,7 +296,12 @@ template <>
 inline coe_master::set_sdo_t::Request from_string(const std::string& str)
 {
   coe_master::set_sdo_t::Request req;
-  Json::Value json = to_json<coe_master::set_sdo_t::Request>(str);
+  std::string what; 
+  Json::Value json;
+  if(!to_json<coe_master::set_sdo_t::Request>(str,json,what))
+  {
+    throw std::runtime_error(what);
+  }
 
   req.desc = json.get("desc", "").asString();
   req.module_id = json.get("module_id", "").asString();
@@ -316,7 +319,13 @@ template <>
 inline coe_master::set_sdo_t::Response from_string(const std::string& str)
 {
   coe_master::set_sdo_t::Response res;
-  Json::Value json = to_json<coe_master::set_sdo_t::Response>(str);
+  std::string what; 
+  Json::Value json;
+  if(!to_json<coe_master::set_sdo_t::Response>(str,json,what))
+  {
+    throw std::runtime_error(what);
+  }
+
 
   res.success = json["success"].asBool();
   res.what = json["what"].asString();

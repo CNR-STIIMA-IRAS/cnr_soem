@@ -178,7 +178,7 @@ SdoManager::SdoManager(const std::map<int, std::string>& module_addresses_map,
   {
     ll = __LINE__;
     std::cout << "Prepare the SET SDO server .." << std::endl;
-    set_sdo_server_ = coe_master::utils::make_shared(
+    set_sdo_server_ = cnr::ipc::make_shared(
         io_context_,
         host,
         set_sdo_port,
@@ -186,7 +186,7 @@ SdoManager::SdoManager(const std::map<int, std::string>& module_addresses_map,
 
     std::cout << "Prepare the GET SDO server .." << std::endl;
     ll = __LINE__;
-    get_sdo_server_ = coe_master::utils::make_shared(
+    get_sdo_server_ = cnr::ipc::make_shared(
         io_context_,
         host,
         get_sdo_port,
@@ -227,12 +227,7 @@ void SdoManager::setSdo(const std::string& income, std::string& outcome)
   coe_master::set_sdo_t::Response res;
   std::string what = "setSdo";
 
-  if (!coe_master::validate<coe_master::set_sdo_t::Request>(income, what))
-  {
-    res.what = "Failed SdoManager::setSdo: " + what;
-    res.success = false;
-  }
-  else
+  try
   {
     coe_master::set_sdo_t::Request req = coe_master::from_string<coe_master::set_sdo_t::Request>(income);
 
@@ -248,6 +243,12 @@ void SdoManager::setSdo(const std::string& income, std::string& outcome)
       res.what = "Failed SdoManager::setSdo: " + what;
     }
   }
+  catch(const std::exception& e)
+  {
+    res.what = "Failed SdoManager::setSdo: " + std::string(e.what());
+    res.success = false;
+  }
+  
   outcome = coe_master::to_string(res);
 }
 
@@ -256,12 +257,7 @@ void SdoManager::getSdo(const std::string& income, std::string& outcome)
   coe_master::get_sdo_t::Response res;
   std::string what;
 
-  if (!coe_master::validate<coe_master::get_sdo_t::Request>(income, what))
-  {
-    res.what = "Failed SdoManager::getSdo: " + what;
-    res.success = false;
-  }
-  else
+  try
   {
     coe_master::get_sdo_t::Request req = coe_master::from_string<coe_master::get_sdo_t::Request>(income);
 
@@ -278,6 +274,12 @@ void SdoManager::getSdo(const std::string& income, std::string& outcome)
           addr, req.sdotype, req.index, req.subindex, req.timeout_ms, true, &(res.value[0]), res.what, true);
     }
   }
+  catch(const std::exception& e)
+  {
+    res.what = "Failed SdoManager::getSdo: " + std::string(e.what());
+    res.success = false;
+  }
+  
   outcome = coe_master::to_string(res);
 }
 

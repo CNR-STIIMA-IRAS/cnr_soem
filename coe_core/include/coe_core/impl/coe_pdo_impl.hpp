@@ -1,3 +1,6 @@
+#ifndef SRC_CNR_SOEM_COE_CORE_INCLUDE_COE_CORE_IMPL_COE_PDO_IMPL
+#define SRC_CNR_SOEM_COE_CORE_INCLUDE_COE_CORE_IMPL_COE_PDO_IMPL
+
 #include <chrono>
 #include <numeric>
 #include <coe_core/coe_pdo.h>
@@ -5,7 +8,8 @@
 namespace coe_core
 {
 
-void Pdo::flush(uint8_t *data, bool prepend_time) const
+template<PdoType PDO_TYPE>
+inline void Pdo<PDO_TYPE>::flush(uint8_t *data, bool prepend_time) const
 {
   if (size_bits_map_.size() != cob_list_.size())
     throw std::runtime_error("The bitmap for the packet struct has not yet defined. ");
@@ -51,7 +55,8 @@ void Pdo::flush(uint8_t *data, bool prepend_time) const
   }
 }
 
-void Pdo::update(const uint8_t *data, bool prepended_time)
+template<PdoType PDO_TYPE>
+inline void Pdo<PDO_TYPE>::update(const uint8_t *data, bool prepended_time)
 {
   if (!finalized_)
     throw std::runtime_error("The PdoVector has not been finalized. Abort.");
@@ -107,9 +112,28 @@ void Pdo::update(const uint8_t *data, bool prepended_time)
   }
 }
 
-std::string Pdo::to_string(bool verbose) const
+template<PdoType PDO_TYPE>
+inline std::size_t Pdo<PDO_TYPE>::nBytes(bool packed) const
 {
-  std::string ret = (isRxPdo() ? "[ RxPDO ] " : "[ TxPDO ] ") + std::to_string(nEntries()) + "# entries\n";
+  std::size_t ret = 0;
+
+  if (!finalized_)
+    ret = 9999999;
+  else if (cob_list_.size() == 0)
+    ret = 0;
+  else if (!packed)
+    ret = std::accumulate(cob_list_.begin(), cob_list_.end(), 0,
+                          [](std::size_t s, coe_core::BaseDataObjectEntryPtr cob) { return s + cob->sizeBytes(); });
+  else
+    ret = dim_bytes_;
+
+  return ret;
+}
+
+template<PdoType PDO_TYPE>
+inline std::string Pdo<PDO_TYPE>::to_string() const
+{
+  std::string ret = (PDO_TYPE==coe_core::PdoType::RX_PDO ? "[ RxPDO ] " : "[ TxPDO ] ") + std::to_string(nEntries()) + "# entries\n";
   ret += "Number of Entries: " + std::to_string(cob_list_.size()) + "\n";
 
   for (auto const &f : cob_list_)
@@ -127,21 +151,7 @@ std::string Pdo::to_string(bool verbose) const
   return ret;
 }
 
-std::size_t Pdo::nBytes(bool packed) const
-{
-  std::size_t ret = 0;
-
-  if (!finalized_)
-    ret = 9999999;
-  else if (cob_list_.size() == 0)
-    ret = 0;
-  else if (!packed)
-    ret = std::accumulate(cob_list_.begin(), cob_list_.end(), 0,
-                          [](std::size_t s, coe_core::BaseDataObjectEntryPtr cob) { return s + cob->sizeBytes(); });
-  else
-    ret = dim_bytes_;
-
-  return ret;
-}
 
 }  // namespace coe_core
+
+#endif  /* SRC_CNR_SOEM_COE_CORE_INCLUDE_COE_CORE_IMPL_COE_PDO_IMPL */

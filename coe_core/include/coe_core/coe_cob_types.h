@@ -5,19 +5,19 @@
  *
  */
 
-#ifndef CPE_CORE__COE_COB_TYPES__H
-#define CPE_CORE__COE_COB_TYPES__H
+#ifndef COE_CORE__COE_COB_TYPES__H
+#define COE_CORE__COE_COB_TYPES__H
+
+#include <boost/algorithm/string.hpp>
 
 #include <typeinfo>
 #include <typeindex>
 #include <tuple>
 #include <map>
 #include <algorithm>
-#include <boost/algorithm/string.hpp>
 #include <string>
-#include <assert.h>
 #include <exception>
-#include <cstring>
+#include <cstdint>
 #include <memory>
 #include <ethercattype.h>
 
@@ -30,13 +30,20 @@ struct uint24_t
     static_assert( NBITS == 8, "byte must be an octet" ) ;
 
     uint24_t() = default ;
-    uint24_t( char32_t value )
+    uint24_t(const char32_t& value )
     {
+        *this = value;
+    }
+
+    const uint24_t& operator=(const char32_t& value)
+    {
+        char32_t _value = value;
         // assert value within range of uint24_t
-        lsb = value & 0xff ;
-        value >>= NBITS ;
-        midb = value & 0xff ;
-        msb = value >> NBITS ;
+        lsb = _value & 0xff ;
+        _value >>= NBITS ;
+        midb = _value & 0xff ;
+        msb = _value >> NBITS ;
+        return *this;
     }
 
     operator char32_t() const { return ( msb << (NBITS*2) ) + ( midb << NBITS ) + lsb ; }
@@ -45,6 +52,44 @@ struct uint24_t
     std::uint8_t midb = 0 ;
     std::uint8_t lsb = 0 ;
 };
+
+
+template<ec_datatype ECT_TYPE> struct std_type 
+{ 
+  using type = 
+  typename std::conditional<ECT_TYPE==ECT_BOOLEAN    , bool        ,
+  typename std::conditional<ECT_TYPE==ECT_INTEGER8   , int8_t      ,
+  typename std::conditional<ECT_TYPE==ECT_INTEGER16  , int16_t     ,
+  typename std::conditional<ECT_TYPE==ECT_INTEGER32  , int32_t     ,
+  typename std::conditional<ECT_TYPE==ECT_INTEGER64  , int64_t     ,
+  typename std::conditional<ECT_TYPE==ECT_UNSIGNED8  , uint8_t     ,
+  typename std::conditional<ECT_TYPE==ECT_UNSIGNED16 , uint16_t    ,
+  typename std::conditional<ECT_TYPE==ECT_UNSIGNED24 , uint24_t    ,
+  typename std::conditional<ECT_TYPE==ECT_UNSIGNED32 , uint32_t    ,
+  typename std::conditional<ECT_TYPE==ECT_UNSIGNED64 , uint64_t    ,
+  typename std::conditional<ECT_TYPE==ECT_REAL32     , double      ,
+  typename std::conditional<ECT_TYPE==ECT_REAL64     , long double ,
+  typename std::conditional<ECT_TYPE==ECT_BIT1       , bool        ,
+  typename std::conditional<ECT_TYPE==ECT_BIT2       , bool        ,
+  typename std::conditional<ECT_TYPE==ECT_BIT3       , bool        ,
+  typename std::conditional<ECT_TYPE==ECT_BIT4       , bool        ,
+  typename std::conditional<ECT_TYPE==ECT_BIT5       , bool        ,
+  typename std::conditional<ECT_TYPE==ECT_BIT6       , bool        ,
+  typename std::conditional<ECT_TYPE==ECT_BIT7       , bool        ,
+  typename std::conditional<ECT_TYPE==ECT_BIT8       , bool        , void
+  >::type >::type >::type >::type >::type >::type >::type >::type >::type >::type 
+  >::type >::type >::type >::type >::type >::type >::type >::type >::type >::type;
+  
+  static constexpr type value = 0x0;
+};
+
+template<ec_datatype data>
+constexpr std::tuple<std::type_index, std::size_t, std::size_t, std::string> make_info(std::size_t superside_size_bit = 0) 
+{
+  return std::make_tuple( std::type_index( typeid(typename std_type<data>::type) ), 
+    (superside_size_bit != 0 ? superside_size_bit : 8 * sizeof(typename std_type<data>::type) ),
+    (superside_size_bit != 0 ? (1 + superside_size_bit / 8u) : 8 * sizeof(typename std_type<data>::type) ), typeid(typename std_type<data>::type).name() );
+}
 
 struct EcTypes
 {
@@ -56,16 +101,16 @@ struct EcTypes
 
   static map& Map()
   {
-    static map allowed= { { ECT_BOOLEAN   , std::make_tuple( std::type_index( typeid(bool     ) ), 1                   , sizeof(bool    ), typeid(bool     ).name() ) }
-                        , { ECT_UNSIGNED8 , std::make_tuple( std::type_index( typeid(uint8_t  ) ), 8 * sizeof(uint8_t ), sizeof(uint8_t ), typeid(uint8_t  ).name() ) }
-                        , { ECT_UNSIGNED16, std::make_tuple( std::type_index( typeid(uint16_t ) ), 8 * sizeof(uint16_t), sizeof(uint16_t), typeid(uint16_t ).name() ) }
-                        , { ECT_UNSIGNED32, std::make_tuple( std::type_index( typeid(uint32_t ) ), 8 * sizeof(uint32_t), sizeof(uint32_t), typeid(uint32_t ).name() ) }
-                        , { ECT_UNSIGNED64, std::make_tuple( std::type_index( typeid(uint64_t ) ), 8 * sizeof(uint64_t), sizeof(uint64_t), typeid(uint64_t ).name() ) }
-                        , { ECT_INTEGER8  , std::make_tuple( std::type_index( typeid(int8_t   ) ), 8 * sizeof(int8_t)  , sizeof(int8_t)  , typeid(int8_t   ).name() ) }
-                        , { ECT_INTEGER16 , std::make_tuple( std::type_index( typeid(int16_t  ) ), 8 * sizeof(int16_t) , sizeof(int16_t) , typeid(int16_t  ).name() ) }
-                        , { ECT_INTEGER32 , std::make_tuple( std::type_index( typeid(int32_t  ) ), 8 * sizeof(int32_t) , sizeof(int32_t) , typeid(int32_t  ).name() ) }
-                        , { ECT_INTEGER64 , std::make_tuple( std::type_index( typeid(int64_t  ) ), 8 * sizeof(int64_t) , sizeof(int64_t) , typeid(int64_t  ).name() ) } 
-                        , { ECT_UNSIGNED24, std::make_tuple( std::type_index( typeid(uint24_t ) ), 8 * sizeof(uint24_t), sizeof(uint24_t), typeid(uint24_t ).name() ) } 
+    static map allowed= { { ECT_BOOLEAN   , make_info<ECT_BOOLEAN   >(1) }
+                        , { ECT_UNSIGNED8 , make_info<ECT_UNSIGNED8 >() }
+                        , { ECT_UNSIGNED16, make_info<ECT_UNSIGNED16>() }
+                        , { ECT_UNSIGNED32, make_info<ECT_UNSIGNED32>() }
+                        , { ECT_UNSIGNED64, make_info<ECT_UNSIGNED64>() }
+                        , { ECT_INTEGER8  , make_info<ECT_INTEGER8  >() }
+                        , { ECT_INTEGER16 , make_info<ECT_INTEGER16 >() }
+                        , { ECT_INTEGER32 , make_info<ECT_INTEGER32 >() }
+                        , { ECT_INTEGER64 , make_info<ECT_INTEGER64 >() } 
+                        , { ECT_UNSIGNED24, make_info<ECT_UNSIGNED24>() } 
     };       
     return allowed;
   }
@@ -149,4 +194,4 @@ inline std::string getType(  const ec_datatype& t )
 
 }  // namespace coe_core 
 
-#endif  // CPE_CORE__COE_COB_TYPES__H
+#endif  // COE_CORE__COE_COB_TYPES__H

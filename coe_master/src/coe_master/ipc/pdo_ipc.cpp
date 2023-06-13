@@ -64,6 +64,7 @@ namespace coe_master
         tx_pdo_(identifier, ECT_SDO_TXPDOASSIGN, operational_time, watchdog_decimation)
   {
   }
+  
   ModuleIPC::~ModuleIPC() {}
 
   ModulesIPC::~ModulesIPC()

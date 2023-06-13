@@ -7,8 +7,9 @@
 #include <thread>
 #include <vector>
 
+#include <cnr_ipc_utilities/asio_ipc.h>
 #include <coe_master/ipc/sdo_ipc_msgs.h>
-#include <coe_master/ipc/utilities/asio_utilities.h>
+
 
 namespace coe_master
 {
@@ -33,8 +34,8 @@ class SdoManager : public std::enable_shared_from_this<SdoManager>
 
   boost::asio::io_context io_context_;
   std::thread io_context_thread_;
-  std::shared_ptr<utils::AsioServer> set_sdo_server_;
-  std::shared_ptr<utils::AsioServer> get_sdo_server_;
+  std::shared_ptr<cnr::ipc::AsioServer> set_sdo_server_;
+  std::shared_ptr<cnr::ipc::AsioServer> get_sdo_server_;
 };
 
 }  // namespace coe_master

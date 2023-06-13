@@ -39,9 +39,11 @@
 #include <iostream>
 #include <map>
 
+#include <cnr_ipc_utilities/asio_ipc.h>
+
 #include <coe_master/ipc/sdo_ipc.h>
 #include <coe_master/ipc/sdo_ipc_msgs.h>
-#include <coe_master/ipc/utilities/asio_utilities.h>
+
 
 auto now() { return std::chrono::steady_clock::now(); }
 
@@ -105,7 +107,7 @@ template <class F>
 
 struct ClientExample
 {
-  coe_master::utils::AsioClient c;
+  cnr::ipc::AsioClient c;
 
   ClientExample(const std::string& host, const std::string& port)
   {

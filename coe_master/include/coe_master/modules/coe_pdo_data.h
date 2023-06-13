@@ -30,7 +30,6 @@ namespace PdoData
 
     cnr::param::node_t config(node);
     if(!cnr::param::is_sequence(config))
-
     {
       throw std::runtime_error("The node  is not of type array");
     }

@@ -68,7 +68,6 @@ add_library(${PROJECT_NAME}
                   src/${PROJECT_NAME}/ds402/coe_bitwise_struct.cpp  
                     src/${PROJECT_NAME}/coe_base.cpp
                       src/${PROJECT_NAME}/coe_string_utilities.cpp
-                        src/${PROJECT_NAME}/coe_pdo.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -85,8 +84,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC soem)
 #############
 install(DIRECTORY include/${PROJECT_NAME}
         DESTINATION ${CNR_INSTALL_INCLUDE_DIR}
-        FILES_MATCHING PATTERN "*.h"
-        PATTERN ".git" EXCLUDE
+        FILES_MATCHING 
+          PATTERN "*.h"
+          PATTERN "*.hpp"
+          PATTERN ".git" EXCLUDE
 )
 
 install(TARGETS ${PROJECT_NAME} 

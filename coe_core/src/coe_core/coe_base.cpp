@@ -66,7 +66,7 @@ bool WeakDataObject::operator==(const WeakDataObject& rhs) const
   return true;
 }
 
-std::string WeakDataObject::to_string(bool verbose) const
+std::string WeakDataObject::to_string() const
 {
   std::string ret;
   for (auto const& f : cob_list_)
